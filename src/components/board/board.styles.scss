@@ -1,0 +1,50 @@
+@import "../../styles/settings.styles.scss";
+
+.board {
+  width: 100vw;
+  height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  .letters {
+    display: flex;
+    margin-left: $s-size;
+    margin-top: $xs-size;
+  }
+
+  .letter {
+    width: $field-size;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+  }
+
+  .numbers {
+    margin-right: $s-size;
+  }
+
+  .number {
+    display: flex;
+    align-items: center;
+    height: $field-size;
+  }
+
+  .fields-container {
+    display: flex;
+  }
+
+  .fields {
+    display: flex;
+    flex-direction: column;
+
+    border: 2px solid $grey;
+  }
+
+  .row {
+    display: flex;
+    background-color: aqua;
+  }
+}

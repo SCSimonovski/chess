@@ -1,0 +1,16 @@
+@import "../../styles/settings.styles.scss";
+
+.figure {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  user-select: none;
+  pointer-events: none;
+
+  .img {
+    pointer-events: none;
+    width: $field-size;
+    height: $field-size;
+  }
+}

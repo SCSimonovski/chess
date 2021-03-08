@@ -1,0 +1,20 @@
+@import "../../styles/settings.styles.scss";
+
+.field {
+  background-color: rgb(248, 223, 223);
+  width: $field-size;
+  height: $field-size;
+  user-select: none;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &.white {
+    background-color: $field-light;
+  }
+
+  &.black {
+    background-color: $field-dark;
+  }
+}
