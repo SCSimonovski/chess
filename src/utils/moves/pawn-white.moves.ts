@@ -1,4 +1,4 @@
-import { ChessField, BLACK_FIGURES } from "../../fixtures/chessBoard";
+import { ChessField, BLACK_FIGURES } from "../../fixtures/chess-board";
 import { AllowedMoves } from "../../utils/types";
 
 ////////////////////////////////////////////////////////////////////////

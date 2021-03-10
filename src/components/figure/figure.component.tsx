@@ -11,7 +11,7 @@ import kingWhite from "../../figures/king-white.svg";
 import queenBlack from "../../figures/queen-black.svg";
 import queenWhite from "../../figures/queen-white.svg";
 
-import { ChessFigure } from "../../fixtures/chessBoard";
+import { ChessFigure } from "../../fixtures/chess-board";
 
 import "./figure.styles.scss";
 

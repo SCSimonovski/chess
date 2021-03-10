@@ -1,5 +1,5 @@
-import { ChessField } from "../../fixtures/chessBoard";
-import { isCheck } from "./isCheck";
+import { ChessField } from "../../fixtures/chess-board";
+import { isCheck } from "./is-check";
 import { AllowedMoves, Castling } from "../../utils/types";
 
 export const kingMoves = (
@@ -119,6 +119,7 @@ export const kingMoves = (
       if (isCheck(board, enemyFigures, `${row}${column + 1}`).length === 0) {
         arr.push(`${row}${column + 2}`);
         castling = {
+          position: `${row}${column + 2}`,
           indicesFrom: `${row}${column + 4}`,
           indicesTo: `${row}${column + 1}`,
           rookSide: board[row][column + 4].figure,
@@ -138,6 +139,7 @@ export const kingMoves = (
       if (isCheck(board, enemyFigures, `${row}${column - 1}`).length === 0) {
         arr.push(`${row}${column - 2}`);
         castling = {
+          position: `${row}${column - 2}`,
           indicesFrom: `${row}${column - 3}`,
           indicesTo: `${row}${column - 1}`,
           rookSide: board[row][column - 3].figure,

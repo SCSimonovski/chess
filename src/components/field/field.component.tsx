@@ -1,19 +1,18 @@
-import { useState, useEffect } from "react";
-
 import Figure from "../figure/figure.component";
 import {
   BLACK_FIGURES,
   BOARD_MATRIX,
   ChessFigure,
   WHITE_FIGURES,
-} from "../../fixtures/chessBoard";
+} from "../../fixtures/chess-board";
 
 import { allowedMoves } from "../../utils/moves/moves";
-import { isCheck } from "../../utils/moves/isCheck";
+import { isCheck } from "../../utils/moves/is-check";
+import { isCheckmate } from "../../utils/board/is-checkmate";
 import { updateBoard } from "../../utils/board/update-board";
-import { castling } from "../../utils/board/castling";
+import { castling, enPassant } from "../../utils/board/castling";
 
-import { AllowedMoves, PrevMove } from "../../utils/types";
+import { AllowedMoves, EnPassant, PrevMove } from "../../utils/types";
 
 import "./field.styles.scss";
 
@@ -50,6 +49,7 @@ const Field = ({ figure, color, fieldIndices }: FieldProps) => {
         castling: undefined,
         enPassant: undefined,
       };
+      let checkArr: Array<string> = [];
 
       if (figure.includes("White") && whiteOnMove) {
         movesToPlay = allowedMoves(divFigure.id, fieldIndices, board, prevMove);
@@ -83,7 +83,7 @@ const Field = ({ figure, color, fieldIndices }: FieldProps) => {
         document.removeEventListener("mousemove", onMouseMove);
         divFigure.style.position = "static";
 
-        if (elemBelow.id !== fieldIndices) {
+        if (elemBelow?.id.length === 2 && elemBelow.id !== fieldIndices) {
           let allow = movesToPlay.arr.some((move) => {
             return elemBelow.id === move;
           });
@@ -96,9 +96,6 @@ const Field = ({ figure, color, fieldIndices }: FieldProps) => {
             "empty"
           );
 
-          console.log(board);
-
-          let checkArr: Array<string> = [];
           if (allow && whiteOnMove) {
             checkArr = isCheck(board, BLACK_FIGURES, "kingWhite");
           } else if (allow) {
@@ -110,16 +107,18 @@ const Field = ({ figure, color, fieldIndices }: FieldProps) => {
               elemBelow.removeChild(elemBelow.firstChild);
             }
 
-            // if (["kingBlack", "kingWhite"].includes(figure)) {
-            //   board = castling(board, figure, fieldIndices, elemBelow.id);
-            // }
-
-            if (movesToPlay.castling) {
+            if (
+              movesToPlay.castling &&
+              movesToPlay.castling.position === elemBelow.id
+            ) {
               board = castling(board, movesToPlay.castling);
             }
 
-            if (["pawnBlack", "pawnWhite"].includes(figure)) {
-              //   board = enPassant();
+            if (
+              movesToPlay.enPassant &&
+              movesToPlay.enPassant.pawnIndices === elemBelow.id
+            ) {
+              board = enPassant(board, movesToPlay.enPassant);
             }
 
             if (
@@ -161,12 +160,39 @@ const Field = ({ figure, color, fieldIndices }: FieldProps) => {
 
             elemBelow.appendChild(divFigure);
 
-            whiteOnMove = !whiteOnMove;
             if (whiteOnMove) {
-              console.log("White on move");
-            } else {
-              console.log("Black on move");
+              checkArr = isCheck(board, WHITE_FIGURES, "kingBlack");
+              if (checkArr.length !== 0) {
+                let checkmate = isCheckmate(
+                  board,
+                  WHITE_FIGURES,
+                  BLACK_FIGURES,
+                  "kingBlack",
+                  checkArr
+                );
+
+                if (checkmate) {
+                  console.log("CHECKMATE!!! Game is Over!");
+                }
+              }
+            } else if (figure.includes("Black") && !whiteOnMove) {
+              checkArr = isCheck(board, BLACK_FIGURES, "kingWhite");
+              if (checkArr.length !== 0) {
+                let checkmate = isCheckmate(
+                  board,
+                  BLACK_FIGURES,
+                  WHITE_FIGURES,
+                  "kingWhite",
+                  checkArr
+                );
+
+                if (checkmate) {
+                  console.log("CHECKMATE!!! Game is Over!");
+                }
+              }
             }
+
+            whiteOnMove = !whiteOnMove;
           } else {
             board = updateBoard(
               board,
@@ -182,18 +208,6 @@ const Field = ({ figure, color, fieldIndices }: FieldProps) => {
       document.addEventListener("mouseup", onMouseUp);
     }
   };
-
-  //   const enPassant = (fromField, toField) => {
-  //     const from = fromField.split("");
-  //     let row = parseInt(from[0]);
-  //     let column = parseInt(from[1]);
-
-  //     const to = toField.split("");
-  //     let toRow = parseInt(to[0]);
-  //     let toColumn = parseInt(to[1]);
-
-  //     if(toRow === row)
-  //   };
 
   return (
     <div

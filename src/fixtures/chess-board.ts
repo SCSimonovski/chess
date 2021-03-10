@@ -124,8 +124,6 @@ board.fields[7].forEach((field, index) => {
   field.setFigure(new Figure(titles[index], "white", `${1}${index}`));
 });
 
-console.log(board);
-
 export const BOARD_MATRIX: Array<Array<ChessField>> = [
   [
     {

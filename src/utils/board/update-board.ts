@@ -1,4 +1,4 @@
-import { ChessFigure, ChessField } from "../../fixtures/chessBoard";
+import { ChessFigure, ChessField } from "../../fixtures/chess-board";
 
 export const updateBoard = (
   board: Array<Array<ChessField>>,

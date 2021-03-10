@@ -1,4 +1,4 @@
-import { BOARD_MATRIX } from "../../fixtures/chessBoard";
+import { BOARD_MATRIX } from "../../fixtures/chess-board";
 
 import Field from "../field/field.component";
 

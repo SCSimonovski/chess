@@ -1,4 +1,4 @@
-import { ChessField } from "../../fixtures/chessBoard";
+import { ChessField } from "../../fixtures/chess-board";
 
 export const queenMoves = (
   board: Array<Array<ChessField>>,

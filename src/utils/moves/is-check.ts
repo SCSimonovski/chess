@@ -1,5 +1,6 @@
-import { chessFigure } from "../../fixtures/board";
-import { ChessField } from "../../fixtures/chessBoard";
+import { ChessField } from "../../fixtures/chess-board";
+import { findKingIndices } from "../board/find-king-indices";
+import { positionToIndices } from "../board/position-to-indices";
 
 export const isCheck = (
   board: Array<Array<ChessField>>,
@@ -8,29 +9,14 @@ export const isCheck = (
 ): Array<string> => {
   const arr: string[] = [];
 
-  let king: ChessField | undefined;
-
-  let row = 0;
-  let column = 0;
+  let row: number;
+  let column: number;
 
   if (["kingBlack", "kingWhite"].includes(value)) {
-    board.some((r) => {
-      king = r.find((field) => field.figure === value);
-      if (king) {
-        let indices = king.fieldIndices.split("");
-        row = parseInt(indices[0]);
-        column = parseInt(indices[1]);
-      }
-
-      return !!king;
-    });
+    [row, column] = findKingIndices(board, value);
   } else {
-    const fields = value.split("");
-    row = parseInt(fields[0]);
-    column = parseInt(fields[1]);
+    [row, column] = positionToIndices(value);
   }
-
-  console.log(value, "is check is running");
 
   ////////////////////////////////////////////////////////
   // CHECK FROM ROOK OR QUEEN ////////////////////////////
@@ -95,6 +81,7 @@ export const isCheck = (
       if (ef.includes(board[r][c].figure)) {
         arr.push(`${r}${c}`);
       }
+
       break;
     }
     c--;
@@ -118,6 +105,7 @@ export const isCheck = (
       if (ef.includes(board[r][c].figure)) {
         arr.push(`${r}${c}`);
       }
+
       break;
     }
 
@@ -134,6 +122,7 @@ export const isCheck = (
       if (ef.includes(board[r][c].figure)) {
         arr.push(`${r}${c}`);
       }
+
       break;
     }
     r++;
@@ -149,6 +138,7 @@ export const isCheck = (
       if (ef.includes(board[r][c].figure)) {
         arr.push(`${r}${c}`);
       }
+
       break;
     }
 
@@ -165,6 +155,7 @@ export const isCheck = (
       if (ef.includes(board[r][c].figure)) {
         arr.push(`${r}${c}`);
       }
+
       break;
     }
 

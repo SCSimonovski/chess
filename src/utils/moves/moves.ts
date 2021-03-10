@@ -3,7 +3,7 @@ import {
   BLACK_FIGURES,
   ChessField,
   ChessFigure,
-} from "../../fixtures/chessBoard";
+} from "../../fixtures/chess-board";
 
 import { PrevMove, AllowedMoves } from "../../utils/types";
 

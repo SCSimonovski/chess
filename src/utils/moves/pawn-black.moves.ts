@@ -1,5 +1,5 @@
-import { ChessField, WHITE_FIGURES } from "../../fixtures/chessBoard";
-import { PrevMove, AllowedMoves } from "../../utils/types";
+import { ChessField, WHITE_FIGURES } from "../../fixtures/chess-board";
+import { PrevMove, AllowedMoves, EnPassant } from "../../utils/types";
 
 ////////////////////////////////////////////////////////////////////
 // BLACK pawn MOVES ////////////////////////////////////////////////
@@ -37,17 +37,31 @@ export const pawnBlackMoves = (
     arr.push(`${row - 1}${column + 1}`);
   }
 
+  let enPassant: EnPassant | undefined = undefined;
   if (
     prevMove.title === "pawn" &&
     prevMove.from.row === 1 &&
-    prevMove.to.row === 3
+    prevMove.to.row === 3 &&
+    row === 3
   ) {
     if (prevMove.to.column === column + 1) {
       arr.push(`${row - 1}${column + 1}`);
+      enPassant = {
+        pawnIndices: `${row - 1}${column + 1}`,
+        position: `${row}${column + 1}`,
+        row: 3,
+        column: column + 1,
+      };
     }
     if (prevMove.to.column === column - 1) {
       arr.push(`${row - 1}${column - 1}`);
+      enPassant = {
+        pawnIndices: `${row - 1}${column + 1}`,
+        position: `${row}${column - 1}`,
+        row: 3,
+        column: column - 1,
+      };
     }
   }
-  return { arr: arr, castling: undefined, enPassant: undefined };
+  return { arr: arr, castling: undefined, enPassant };
 };

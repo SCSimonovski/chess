@@ -1,4 +1,4 @@
-import { ChessFigure } from "../fixtures/chessBoard";
+import { ChessFigure } from "../fixtures/chess-board";
 
 export type AllowedMoves = {
   arr: Array<string>;
@@ -7,6 +7,7 @@ export type AllowedMoves = {
 };
 
 export type Castling = {
+  position: string;
   indicesFrom: string;
   indicesTo: string;
   rookSide: ChessFigure;
@@ -17,16 +18,10 @@ export type Castling = {
 };
 
 export type EnPassant = {
-  title: string;
-  to: {
-    row: number;
-    column: number;
-  };
-
-  from: {
-    row: number;
-    column: number;
-  };
+  pawnIndices: string;
+  position: string;
+  row: number;
+  column: number;
 };
 
 export type PrevMove = {
