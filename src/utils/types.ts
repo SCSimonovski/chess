@@ -1,6 +1,6 @@
 import { ChessFigure } from "../fixtures/chess-board";
 
-export type AllowedMoves = {
+export type AvailableMoves = {
   arr: Array<string>;
   castling: Castling | undefined;
   enPassant: EnPassant | undefined;
@@ -8,13 +8,9 @@ export type AllowedMoves = {
 
 export type Castling = {
   position: string;
-  indicesFrom: string;
-  indicesTo: string;
-  rookSide: ChessFigure;
-  kingIndices: {
-    row: number;
-    column: number;
-  };
+  rookPosFrom: string;
+  rookPosTo: string;
+  rook: ChessFigure;
 };
 
 export type EnPassant = {

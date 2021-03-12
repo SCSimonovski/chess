@@ -45,18 +45,15 @@ const Board = () => {
           <div className="number">7</div>
         </div>
         <div className="fields">
-          {BOARD_MATRIX.map((row, rowIndex) => {
+          {BOARD_MATRIX.map((row, i) => {
             return (
-              <div key={rowIndex} className="row">
-                {row.map((field, columnIndex) => {
-                  field.fieldIndices = `${rowIndex}${columnIndex}`;
+              <div key={i} className="row">
+                {row.map((field, j) => {
                   return (
                     <Field
-                      key={field.title}
-                      title={field.title}
-                      figure={field.figure}
-                      color={field.color}
-                      fieldIndices={`${rowIndex}${columnIndex}`}
+                      key={field.position}
+                      {...field}
+                      position={`${i}${j}`}
                     />
                   );
                 })}

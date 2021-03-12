@@ -8,13 +8,12 @@ export const castling = (
   board: Array<Array<ChessField>>,
   castlingInfo: Castling
 ) => {
-  let { indicesFrom, indicesTo, kingIndices, rookSide } = castlingInfo;
-  const field1 = document.getElementById(indicesFrom)!;
-  const field2 = document.getElementById(indicesTo)!;
+  let { rookPosFrom, rookPosTo, rook } = castlingInfo;
+  const field1 = document.getElementById(rookPosFrom)!;
+  const field2 = document.getElementById(rookPosTo)!;
 
   field2.appendChild(field1.firstChild!);
-  board[kingIndices.row][kingIndices.column].firstMove = false;
-  board = updateBoard(board, indicesFrom, indicesTo, "empty", rookSide);
+  board = updateBoard(board, rookPosFrom, rookPosTo, null, rook);
 
   return board;
 };
@@ -28,6 +27,6 @@ export const enPassant = (
   const field = document.getElementById(position)!;
   field.removeChild(field.firstChild!);
 
-  board[row][column].figure = "empty";
+  board[row][column].figure = null;
   return board;
 };

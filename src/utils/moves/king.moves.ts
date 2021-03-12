@@ -1,104 +1,72 @@
 import { ChessField } from "../../fixtures/chess-board";
-import { isCheck } from "./is-check";
-import { AllowedMoves, Castling } from "../../utils/types";
+import { AvailableMoves, Castling } from "../../utils/types";
+import { isUnderAttack } from "./is-under-attack";
 
 export const kingMoves = (
   board: Array<Array<ChessField>>,
   row: number,
   column: number,
-  enemyFigures: Array<string>
-): AllowedMoves => {
+  enemySide: "white" | "black"
+): AvailableMoves => {
   const arr: string[] = [];
 
-  let r = row - 1;
-  let c = column;
-  if (r >= 0) {
-    if (board[r][c].figure !== "empty") {
-      if (enemyFigures.includes(board[r][c].figure)) {
+  const isAllowed = (r: number, c: number) => {
+    if (board[r][c].figure) {
+      if (board[r][c].figure!.side === enemySide) {
         arr.push(`${r}${c}`);
       }
     } else {
       arr.push(`${r}${c}`);
     }
+  };
 
-    c = column - 1;
-    if (c >= 0) {
-      if (board[r][c].figure !== "empty") {
-        if (enemyFigures.includes(board[r][c].figure)) {
-          arr.push(`${r}${c}`);
-        }
-      } else {
-        arr.push(`${r}${c}`);
-      }
-    }
-
-    c = column + 1;
-    if (c <= 7) {
-      if (board[r][c].figure !== "empty") {
-        if (enemyFigures.includes(board[r][c].figure)) {
-          arr.push(`${r}${c}`);
-        }
-      } else {
-        arr.push(`${r}${c}`);
-      }
-    }
-  }
-
-  r = row + 1;
-  c = column;
-  if (r <= 7) {
-    if (board[r][c].figure !== "empty") {
-      if (enemyFigures.includes(board[r][c].figure)) {
-        arr.push(`${r}${c}`);
-      }
-    } else {
-      arr.push(`${r}${c}`);
-    }
-
-    c = column - 1;
-    if (c >= 0) {
-      if (board[r][c].figure !== "empty") {
-        if (enemyFigures.includes(board[r][c].figure)) {
-          arr.push(`${r}${c}`);
-        }
-      } else {
-        arr.push(`${r}${c}`);
-      }
-    }
-
-    c = column + 1;
-    if (c <= 7) {
-      if (board[r][c].figure !== "empty") {
-        if (enemyFigures.includes(board[r][c].figure)) {
-          arr.push(`${r}${c}`);
-        }
-      } else {
-        arr.push(`${r}${c}`);
-      }
-    }
-  }
-
-  r = row;
-  c = column + 1;
+  let r = row;
+  let c = column + 1;
 
   if (c <= 7) {
-    if (board[r][c].figure !== "empty") {
-      if (enemyFigures.includes(board[r][c].figure)) {
-        arr.push(`${r}${c}`);
-      }
-    } else {
-      arr.push(`${r}${c}`);
-    }
+    isAllowed(r, c);
   }
 
   c = column - 1;
   if (c >= 0) {
-    if (board[r][c].figure !== "empty") {
-      if (enemyFigures.includes(board[r][c].figure)) {
-        arr.push(`${r}${c}`);
-      }
-    } else {
-      arr.push(`${r}${c}`);
+    isAllowed(r, c);
+  }
+
+  //////////////////////////////////////////////////////////
+
+  r = row - 1;
+  c = column;
+
+  if (r >= 0) {
+    isAllowed(r, c);
+
+    c = column - 1;
+    if (c >= 0) {
+      isAllowed(r, c);
+    }
+
+    c = column + 1;
+    if (c <= 7) {
+      isAllowed(r, c);
+    }
+  }
+
+  //////////////////////////////////////////////
+
+  r = row + 1;
+  c = column;
+
+  if (r <= 7) {
+    isAllowed(r, c);
+
+    c = column - 1;
+    if (c >= 0) {
+      isAllowed(r, c);
+    }
+
+    c = column + 1;
+    if (c <= 7) {
+      isAllowed(r, c);
     }
   }
 
@@ -106,47 +74,38 @@ export const kingMoves = (
 
   let castling: Castling | undefined = undefined;
 
-  if (
-    board[row][column].firstMove &&
-    ["03", "73"].includes(`${row}${column}`)
-  ) {
+  if (board[row][column].figure!.firstMove) {
     if (
-      board[row][column + 1].figure === "empty" &&
-      board[row][column + 2].figure === "empty" &&
-      board[row][column + 3].figure === "empty" &&
-      board[row][column + 4].firstMove
+      board[row][column + 4].figure?.title === "rook" &&
+      board[row][column + 4].figure?.firstMove &&
+      !board[row][column + 1].figure &&
+      !board[row][column + 2].figure &&
+      !board[row][column + 3].figure
     ) {
-      if (isCheck(board, enemyFigures, `${row}${column + 1}`).length === 0) {
+      if (!isUnderAttack(board, enemySide, `${row}${column + 1}`)) {
         arr.push(`${row}${column + 2}`);
         castling = {
           position: `${row}${column + 2}`,
-          indicesFrom: `${row}${column + 4}`,
-          indicesTo: `${row}${column + 1}`,
-          rookSide: board[row][column + 4].figure,
-          kingIndices: {
-            row,
-            column,
-          },
+          rookPosFrom: `${row}${column + 4}`,
+          rookPosTo: `${row}${column + 1}`,
+          rook: board[row][column + 4].figure!,
         };
       }
     }
 
     if (
-      board[row][column - 1].figure === "empty" &&
-      board[row][column - 2].figure === "empty" &&
-      board[row][column - 3].firstMove
+      board[row][column - 3].figure?.title === "rook" &&
+      board[row][column - 3].figure?.firstMove &&
+      !board[row][column - 1].figure &&
+      !board[row][column - 2].figure
     ) {
-      if (isCheck(board, enemyFigures, `${row}${column - 1}`).length === 0) {
+      if (!isUnderAttack(board, enemySide, `${row}${column - 1}`)) {
         arr.push(`${row}${column - 2}`);
         castling = {
           position: `${row}${column - 2}`,
-          indicesFrom: `${row}${column - 3}`,
-          indicesTo: `${row}${column - 1}`,
-          rookSide: board[row][column - 3].figure,
-          kingIndices: {
-            row,
-            column,
-          },
+          rookPosFrom: `${row}${column - 3}`,
+          rookPosTo: `${row}${column - 1}`,
+          rook: board[row][column - 3].figure!,
         };
       }
     }

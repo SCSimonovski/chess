@@ -1,207 +1,111 @@
 import Figure from "../figure/figure.component";
-import {
-  BLACK_FIGURES,
-  BOARD_MATRIX,
-  ChessFigure,
-  WHITE_FIGURES,
-} from "../../fixtures/chess-board";
+import { BOARD_MATRIX, ChessField } from "../../fixtures/chess-board";
 
-import { allowedMoves } from "../../utils/moves/moves";
+import { availableMoves } from "../../utils/moves/moves";
 import { isCheck } from "../../utils/moves/is-check";
 import { isCheckmate } from "../../utils/board/is-checkmate";
-import { updateBoard } from "../../utils/board/update-board";
+import { moveFigureAt } from "../../utils/move-figure-at";
 import { castling, enPassant } from "../../utils/board/castling";
 
-import { AllowedMoves, EnPassant, PrevMove } from "../../utils/types";
+import { AvailableMoves } from "../../utils/types";
+import { positionToIndices } from "../../utils/board/position-to-indices";
 
 import "./field.styles.scss";
-
-type FieldProps = {
-  title: string;
-  figure: ChessFigure;
-  color: string;
-  fieldIndices: string;
-};
-
-let whiteOnMove = true;
-
-let prevMove: PrevMove;
+import { isAllowed } from "../../utils/moves/is-allowed.move";
 
 let board = BOARD_MATRIX;
+let sideOnMove = "white";
+let pawnColumn = -1;
 
-const Field = ({ figure, color, fieldIndices }: FieldProps) => {
-  // const [board, setBoard] = useState(BOARD_MATRIX);
+let moves: AvailableMoves = {
+  arr: [],
+  castling: undefined,
+  enPassant: undefined,
+};
 
+let checkArr: Array<string> = [];
+
+const Field = ({ figure, color, position }: ChessField) => {
   const onMouseDown = (e: any) => {
     if (e.currentTarget.firstChild) {
       const divFigure = e.currentTarget.firstChild;
       divFigure.style.position = "absolute";
 
-      const fields = fieldIndices.split("");
-      let row = parseInt(fields[0]);
-      let column = parseInt(fields[1]);
+      const [row, column] = positionToIndices(position);
 
-      const figureInfo = board[row][column];
-      const figure = figureInfo.figure;
-
-      let movesToPlay: AllowedMoves = {
-        arr: [],
-        castling: undefined,
-        enPassant: undefined,
-      };
-      let checkArr: Array<string> = [];
-
-      if (figure.includes("White") && whiteOnMove) {
-        movesToPlay = allowedMoves(divFigure.id, fieldIndices, board, prevMove);
-      } else if (figure.includes("Black") && !whiteOnMove) {
-        movesToPlay = allowedMoves(divFigure.id, fieldIndices, board, prevMove);
-      }
+      const figure = board[row][column].figure!;
+      const enemySide = figure.side === "white" ? "black" : "white";
 
       let elemBelow = e.currentTarget;
-      let boardElem = elemBelow.parentElement.parentElement;
-      let { x, y, width, height } = boardElem.getBoundingClientRect();
 
       const { pageX, pageY } = e;
-      const moveAt = (pageX: number, pageY: number) => {
-        if (pageX > x && pageX < x + width) {
-          divFigure.style.left = pageX - divFigure.offsetWidth / 2 + "px";
-        }
-        if (pageY > y && pageY < y + height) {
-          divFigure.style.top = pageY - divFigure.offsetHeight / 2 + "px";
-        }
-      };
-      moveAt(pageX, pageY);
+      moveFigureAt(pageX, pageY, divFigure, elemBelow);
 
-      //  On Mouse Move ///////////////////////////////
+      //  On Mouse Move /////////////////////////////////////////////
       const onMouseMove = (e: any) => {
-        moveAt(e.pageX, e.pageY);
-        elemBelow = document.elementFromPoint(e.pageX, e.pageY);
+        const { pageX, pageY } = e;
+        moveFigureAt(pageX, pageY, divFigure, elemBelow);
+        elemBelow = document.elementFromPoint(pageX, pageY);
       };
       document.addEventListener("mousemove", onMouseMove);
 
+      // On Mouse Up ////////////////////////////////////////////////
       const onMouseUp = () => {
         document.removeEventListener("mousemove", onMouseMove);
         divFigure.style.position = "static";
 
-        if (elemBelow?.id.length === 2 && elemBelow.id !== fieldIndices) {
-          let allow = movesToPlay.arr.some((move) => {
-            return elemBelow.id === move;
-          });
+        let [i, j] = positionToIndices(elemBelow.id);
+        let enemyFigure = board[i][j].figure;
+        let allow = false;
 
-          board = updateBoard(
+        if (
+          figure.side === sideOnMove &&
+          elemBelow?.id.length === 2 &&
+          elemBelow.id !== position
+        ) {
+          moves = availableMoves(figure, position, board, pawnColumn);
+          allow = isAllowed(
+            moves,
             board,
             elemBelow.id,
-            fieldIndices,
+            position,
             figure,
-            "empty"
+            enemyFigure,
+            enemySide
           );
+        }
 
-          if (allow && whiteOnMove) {
-            checkArr = isCheck(board, BLACK_FIGURES, "kingWhite");
-          } else if (allow) {
-            checkArr = isCheck(board, WHITE_FIGURES, "kingBlack");
+        if (allow) {
+          if (moves.castling?.position === elemBelow.id) {
+            board = castling(board, moves.castling!);
           }
 
-          if (allow && checkArr.length === 0) {
-            if (elemBelow.firstChild) {
-              elemBelow.removeChild(elemBelow.firstChild);
-            }
+          if (moves.enPassant?.pawnIndices === elemBelow.id) {
+            board = enPassant(board, moves.enPassant!);
+          }
 
-            if (
-              movesToPlay.castling &&
-              movesToPlay.castling.position === elemBelow.id
-            ) {
-              board = castling(board, movesToPlay.castling);
-            }
-
-            if (
-              movesToPlay.enPassant &&
-              movesToPlay.enPassant.pawnIndices === elemBelow.id
-            ) {
-              board = enPassant(board, movesToPlay.enPassant);
-            }
-
-            if (
-              ["kingBlack", "kingWhite", "rookWhite", "rookBlack"].includes(
-                figure
-              )
-            ) {
-              board[row][column].firstMove = false;
-            }
-
-            if (["pawnBlack", "pawnWhite"].includes(figure)) {
-              const toField = elemBelow.id.split("");
-              let toRow = parseInt(toField[0]);
-              let toColumn = parseInt(toField[1]);
-              prevMove = {
-                title: "pawn",
-                from: {
-                  row: row,
-                  column: column,
-                },
-                to: {
-                  row: toRow,
-                  column: toColumn,
-                },
-              };
-            } else {
-              prevMove = {
-                title: "",
-                from: {
-                  row: 0,
-                  column: 0,
-                },
-                to: {
-                  row: 0,
-                  column: 0,
-                },
-              };
-            }
-
-            elemBelow.appendChild(divFigure);
-
-            if (whiteOnMove) {
-              checkArr = isCheck(board, WHITE_FIGURES, "kingBlack");
-              if (checkArr.length !== 0) {
-                let checkmate = isCheckmate(
-                  board,
-                  WHITE_FIGURES,
-                  BLACK_FIGURES,
-                  "kingBlack",
-                  checkArr
-                );
-
-                if (checkmate) {
-                  console.log("CHECKMATE!!! Game is Over!");
-                }
-              }
-            } else if (figure.includes("Black") && !whiteOnMove) {
-              checkArr = isCheck(board, BLACK_FIGURES, "kingWhite");
-              if (checkArr.length !== 0) {
-                let checkmate = isCheckmate(
-                  board,
-                  BLACK_FIGURES,
-                  WHITE_FIGURES,
-                  "kingWhite",
-                  checkArr
-                );
-
-                if (checkmate) {
-                  console.log("CHECKMATE!!! Game is Over!");
-                }
-              }
-            }
-
-            whiteOnMove = !whiteOnMove;
+          if (figure.title === "pawn" && figure.firstMove) {
+            pawnColumn = j;
           } else {
-            board = updateBoard(
-              board,
-              fieldIndices,
-              elemBelow.id,
-              figure,
-              elemBelow.firstChild?.id || "empty"
-            );
+            pawnColumn = -1;
           }
+
+          checkArr = isCheck(board, enemySide);
+          if (checkArr.length !== 0) {
+            let checkmate = isCheckmate(board, enemySide, checkArr);
+
+            if (checkmate) {
+              console.log("CHECKMATE!!! Game is Over!");
+            }
+          }
+
+          board[i][j].figure!.firstMove = false;
+          sideOnMove = sideOnMove === "white" ? "black" : "white";
+
+          if (elemBelow.firstChild) {
+            elemBelow.removeChild(elemBelow.firstChild);
+          }
+          elemBelow.appendChild(divFigure);
         }
         document.removeEventListener("mouseup", onMouseUp);
       };
@@ -212,11 +116,11 @@ const Field = ({ figure, color, fieldIndices }: FieldProps) => {
   return (
     <div
       className={`field ${color}`}
-      id={fieldIndices}
+      id={position}
       onMouseDown={onMouseDown}
       draggable="false"
     >
-      {figure !== "empty" && <Figure figure={figure} />}
+      {figure && <Figure title={figure.title} side={figure.side} />}
     </div>
   );
 };

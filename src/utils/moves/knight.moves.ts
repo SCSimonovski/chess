@@ -7,7 +7,7 @@ export const knightMoves = (
   board: Array<Array<ChessField>>,
   row: number,
   column: number,
-  enemyFigures: Array<string>
+  enemySide: "white" | "black"
 ): Array<string> => {
   const arr: string[] = [];
 
@@ -17,20 +17,14 @@ export const knightMoves = (
 
   if (r <= 7) {
     if (c <= 7) {
-      if (
-        board[r][c].figure === "empty" ||
-        enemyFigures.includes(board[r][c].figure)
-      ) {
+      if (!board[r][c].figure || enemySide === board[r][c].figure!.side) {
         arr.push(`${r}${c}`);
       }
     }
 
     c = column - 1;
     if (c >= 0) {
-      if (
-        board[r][c].figure === "empty" ||
-        enemyFigures.includes(board[r][c].figure)
-      ) {
+      if (!board[r][c].figure || enemySide === board[r][c].figure!.side) {
         arr.push(`${r}${c}`);
       }
     }
@@ -42,20 +36,14 @@ export const knightMoves = (
 
   if (r >= 0) {
     if (c <= 7) {
-      if (
-        board[r][c].figure === "empty" ||
-        enemyFigures.includes(board[r][c].figure)
-      ) {
+      if (!board[r][c].figure || enemySide === board[r][c].figure!.side) {
         arr.push(`${r}${c}`);
       }
     }
 
     c = column - 1;
     if (c >= 0) {
-      if (
-        board[r][c].figure === "empty" ||
-        enemyFigures.includes(board[r][c].figure)
-      ) {
+      if (!board[r][c].figure || enemySide === board[r][c].figure!.side) {
         arr.push(`${r}${c}`);
       }
     }
@@ -66,20 +54,14 @@ export const knightMoves = (
   r = row + 1;
   if (c <= 7) {
     if (r <= 7) {
-      if (
-        board[r][c].figure === "empty" ||
-        enemyFigures.includes(board[r][c].figure)
-      ) {
+      if (!board[r][c].figure || enemySide === board[r][c].figure!.side) {
         arr.push(`${r}${c}`);
       }
     }
 
     r = row - 1;
     if (r >= 0) {
-      if (
-        board[r][c].figure === "empty" ||
-        enemyFigures.includes(board[r][c].figure)
-      ) {
+      if (!board[r][c].figure || enemySide === board[r][c].figure!.side) {
         arr.push(`${r}${c}`);
       }
     }
@@ -91,20 +73,14 @@ export const knightMoves = (
 
   if (c >= 0) {
     if (r <= 7) {
-      if (
-        board[r][c].figure === "empty" ||
-        enemyFigures.includes(board[r][c].figure)
-      ) {
+      if (!board[r][c].figure || enemySide === board[r][c].figure!.side) {
         arr.push(`${r}${c}`);
       }
     }
 
     r = row - 1;
     if (r >= 0) {
-      if (
-        board[r][c].figure === "empty" ||
-        enemyFigures.includes(board[r][c].figure)
-      ) {
+      if (!board[r][c].figure || enemySide === board[r][c].figure!.side) {
         arr.push(`${r}${c}`);
       }
     }

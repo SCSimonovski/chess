@@ -1,21 +1,18 @@
-import { ChessFigure, ChessField } from "../../fixtures/chess-board";
+import { ChessField, ChessFigure } from "../../fixtures/chess-board";
+import { positionToIndices } from "./position-to-indices";
 
 export const updateBoard = (
   board: Array<Array<ChessField>>,
   indicesFrom: string,
   indicesTo: string,
-  figureFrom: ChessFigure,
-  figureTo: ChessFigure
+  figureFrom: ChessFigure | null,
+  figureTo: ChessFigure | null
 ) => {
-  let indices = indicesFrom.split("");
-  let row = parseInt(indices[0]);
-  let column = parseInt(indices[1]);
-  board[row][column] = { ...board[row][column], figure: figureFrom };
+  let [row, column] = positionToIndices(indicesFrom);
+  board[row][column].figure = figureFrom;
 
-  indices = indicesTo.split("");
-  row = parseInt(indices[0]);
-  column = parseInt(indices[1]);
-  board[row][column] = { ...board[row][column], figure: figureTo };
+  [row, column] = positionToIndices(indicesTo);
+  board[row][column].figure = figureTo;
 
   return board;
 };

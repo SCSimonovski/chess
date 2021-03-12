@@ -1,55 +1,54 @@
-import { BLACK_FIGURES, ChessField } from "../../fixtures/chess-board";
+import { ChessField } from "../../fixtures/chess-board";
 import { kingMoves } from "../moves/king.moves";
 import { findKingIndices } from "./find-king-indices";
 
-import { AllowedMoves, Castling, EnPassant } from "../types";
+import { AvailableMoves } from "../types";
 import { isUnderAttack } from "../moves/is-under-attack";
 import { positionToIndices } from "./position-to-indices";
 import { protectKing } from "../moves/protect-king";
 
 export const isCheckmate = (
   board: Array<Array<ChessField>>,
-  enemyFigures: Array<string>,
-  alliesFigures: Array<string>,
-  kingFigure: "kingWhite" | "kingBlack",
+  enemySide: "white" | "black",
   checkArr: Array<string>
 ): boolean => {
-  let [row, column] = findKingIndices(board, kingFigure);
-
-  let moves: AllowedMoves;
+  let moves: AvailableMoves;
   let isProtected = false;
   let checkmate = true;
+  let alliesSide: "black" | "white" = enemySide === "white" ? "black" : "white";
+
+  let [row, column] = findKingIndices(board, alliesSide);
 
   let [i, j] = positionToIndices(checkArr[0]);
   const figure = board[i][j].figure;
-  moves = kingMoves(board, row, column, enemyFigures);
+
+  console.log(figure);
+
+  moves = kingMoves(board, row, column, enemySide);
+
+  console.log(moves, "moves");
 
   if (checkArr.length > 1 && moves.arr.length === 0) {
     return true;
   }
 
-  checkmate = !isUnderAttack(board, alliesFigures, checkArr[0]);
-
-  if (!checkmate) {
+  if (!isUnderAttack(board, alliesSide, checkArr[0])) {
     return false;
   }
 
-  checkmate = !moves.arr.some(
-    (move) => !isUnderAttack(board, enemyFigures, move)
-  );
-
+  checkmate = !moves.arr.some((move) => !isUnderAttack(board, enemySide, move));
   if (!checkmate) {
+    console.log("honest mistake!");
+
     return false;
   }
 
   ////////////////////////////////////////////////////////////////////////
   // CHECK FROM QUEEN OR BISHOP //////////////////////////////////////////
-  if (
-    ["queenBlack", "queenWhite", "bishopBlack", "bishopWhite"].includes(figure)
-  ) {
+  if (["queen", "bishop"].includes(figure!.title)) {
     // FORWARD LEFT //////////////////////////////////////
     while (i + 1 < row && j + 1 < column) {
-      isProtected = protectKing(board, alliesFigures, `${i + 1}${j + 1}`);
+      isProtected = protectKing(board, enemySide, `${i + 1}${j + 1}`);
       if (isProtected) {
         return false;
       }
@@ -59,7 +58,7 @@ export const isCheckmate = (
 
     // FORWARD RIGHT //////////////////////////////////////
     while (i + 1 < row && j - 1 > column) {
-      isProtected = protectKing(board, alliesFigures, `${i + 1}${j - 1}`);
+      isProtected = protectKing(board, enemySide, `${i + 1}${j - 1}`);
       if (isProtected) {
         return false;
       }
@@ -69,7 +68,7 @@ export const isCheckmate = (
 
     // BACK LEFT //////////////////////////////////////
     while (i - 1 > row && j + 1 < column) {
-      isProtected = protectKing(board, alliesFigures, `${i - 1}${j + 1}`);
+      isProtected = protectKing(board, enemySide, `${i - 1}${j + 1}`);
       if (isProtected) {
         return false;
       }
@@ -79,7 +78,7 @@ export const isCheckmate = (
 
     // BACK RIGHT //////////////////////////////////////
     while (i - 1 > row && j - 1 > column) {
-      isProtected = protectKing(board, alliesFigures, `${i - 1}${j - 1}`);
+      isProtected = protectKing(board, enemySide, `${i - 1}${j - 1}`);
       if (isProtected) {
         return false;
       }
@@ -90,10 +89,10 @@ export const isCheckmate = (
 
   ///////////////////////////////////////////////////////////////////
   // CHECK FROM PAWN OR KNIGHT //////////////////////////////////////////
-  if (["queenBlack", "queenWhite", "rookBlack", "rookWhite"].includes(figure)) {
+  if (["queen", "rook"].includes(figure!.title)) {
     // FORWARD /////////////////////////////
     while (i - 1 > row) {
-      isProtected = protectKing(board, alliesFigures, `${i - 1}${j}`);
+      isProtected = protectKing(board, alliesSide, `${i - 1}${j}`);
       if (isProtected) {
         return false;
       }
@@ -102,7 +101,7 @@ export const isCheckmate = (
 
     // BACK ////////////////////////////////
     while (i + 1 < row) {
-      isProtected = protectKing(board, alliesFigures, `${i + 1}${j}`);
+      isProtected = protectKing(board, enemySide, `${i + 1}${j}`);
       if (isProtected) {
         return false;
       }
@@ -111,7 +110,7 @@ export const isCheckmate = (
 
     // RIGHT ///////////////////////////////
     while (j - 1 > column) {
-      isProtected = protectKing(board, alliesFigures, `${i}${j - 1}`);
+      isProtected = protectKing(board, enemySide, `${i}${j - 1}`);
       if (isProtected) {
         return false;
       }
@@ -120,7 +119,7 @@ export const isCheckmate = (
 
     // LEFT /////////////////////////////////
     while (j + 1 < column) {
-      isProtected = protectKing(board, alliesFigures, `${i}${j + 1}`);
+      isProtected = protectKing(board, enemySide, `${i}${j + 1}`);
       if (isProtected) {
         return false;
       }

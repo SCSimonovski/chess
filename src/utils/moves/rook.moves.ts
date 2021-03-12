@@ -6,7 +6,7 @@ export const rookMoves = (
   board: Array<Array<ChessField>>,
   row: number,
   column: number,
-  enemyFigures: Array<string>
+  enemySide: "white" | "black"
 ): Array<string> => {
   const arr: string[] = [];
 
@@ -15,8 +15,8 @@ export const rookMoves = (
   let c = column;
 
   while (r <= 7) {
-    if (board[r][c].figure !== "empty") {
-      if (enemyFigures.includes(board[r][c].figure)) {
+    if (board[r][c].figure) {
+      if (enemySide === board[r][c].figure!.side) {
         arr.push(`${r}${c}`);
       }
 
@@ -31,8 +31,8 @@ export const rookMoves = (
   r = row - 1;
 
   while (r >= 0) {
-    if (board[r][c].figure !== "empty") {
-      if (enemyFigures.includes(board[r][c].figure)) {
+    if (board[r][c].figure) {
+      if (enemySide === board[r][c].figure!.side) {
         arr.push(`${r}${c}`);
       }
 
@@ -48,8 +48,8 @@ export const rookMoves = (
   c = column + 1;
 
   while (c <= 7) {
-    if (board[r][c].figure !== "empty") {
-      if (enemyFigures.includes(board[r][c].figure)) {
+    if (board[r][c].figure) {
+      if (enemySide === board[r][c].figure!.side) {
         arr.push(`${r}${c}`);
       }
 
@@ -64,8 +64,8 @@ export const rookMoves = (
   c = column - 1;
 
   while (c >= 0) {
-    if (board[r][c].figure !== "empty") {
-      if (enemyFigures.includes(board[r][c].figure)) {
+    if (board[r][c].figure) {
+      if (enemySide === board[r][c].figure!.side) {
         arr.push(`${r}${c}`);
       }
 

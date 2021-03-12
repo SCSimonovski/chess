@@ -7,7 +7,7 @@ export const bishopMoves = (
   board: Array<Array<ChessField>>,
   row: number,
   column: number,
-  enemyFigures: Array<string>
+  enemySide: "white" | "black"
 ): Array<string> => {
   const arr: string[] = [];
 
@@ -16,8 +16,8 @@ export const bishopMoves = (
   let c = column + 1;
 
   while (r <= 7 && c <= 7) {
-    if (board[r][c].figure !== "empty") {
-      if (enemyFigures.includes(board[r][c].figure)) {
+    if (board[r][c].figure) {
+      if (enemySide === board[r][c].figure!.side) {
         arr.push(`${r}${c}`);
       }
 
@@ -34,8 +34,8 @@ export const bishopMoves = (
   c = column - 1;
 
   while (r <= 7 && c >= 0) {
-    if (board[r][c].figure !== "empty") {
-      if (enemyFigures.includes(board[r][c].figure)) {
+    if (board[r][c].figure) {
+      if (enemySide === board[r][c].figure!.side) {
         arr.push(`${r}${c}`);
       }
 
@@ -52,8 +52,8 @@ export const bishopMoves = (
   c = column + 1;
 
   while (r >= 0 && c <= 7) {
-    if (board[r][c].figure !== "empty") {
-      if (enemyFigures.includes(board[r][c].figure)) {
+    if (board[r][c].figure) {
+      if (enemySide === board[r][c].figure!.side) {
         arr.push(`${r}${c}`);
       }
 
@@ -70,8 +70,8 @@ export const bishopMoves = (
   c = column - 1;
 
   while (r >= 0 && c >= 0) {
-    if (board[r][c].figure !== "empty") {
-      if (enemyFigures.includes(board[r][c].figure)) {
+    if (board[r][c].figure) {
+      if (enemySide === board[r][c].figure!.side) {
         arr.push(`${r}${c}`);
       }
 

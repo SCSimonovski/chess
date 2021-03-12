@@ -1,74 +1,54 @@
-import {
-  WHITE_FIGURES,
-  BLACK_FIGURES,
-  ChessField,
-  ChessFigure,
-} from "../../fixtures/chess-board";
+import { ChessField, ChessFigure } from "../../fixtures/chess-board";
 
-import { PrevMove, AllowedMoves } from "../../utils/types";
+import { AvailableMoves } from "../../utils/types";
 
-import { pawnWhiteMoves } from "./pawn-white.moves";
-import { pawnBlackMoves } from "./pawn-black.moves";
+import { pawnMoves } from "./pawn.move";
 import { rookMoves } from "./rook.moves";
 import { knightMoves } from "./knight.moves";
 import { bishopMoves } from "./bishop.moves";
 import { queenMoves } from "./queen.moves";
 import { kingMoves } from "./king.moves";
+import { positionToIndices } from "../board/position-to-indices";
 
 // ALLOWED MOVES /////////////////////////////////////////////////////
-export const allowedMoves = (
+export const availableMoves = (
   figure: ChessFigure,
   field: string,
   board: Array<Array<ChessField>>,
-  prevMove: PrevMove
-): AllowedMoves => {
-  const fields = field.split("");
-  let row = parseInt(fields[0]);
-  let column = parseInt(fields[1]);
-
+  pawnColumn: number
+): AvailableMoves => {
+  let [row, column] = positionToIndices(field);
   let arr: Array<string> = [];
-  switch (figure) {
-    case "pawnBlack":
-      return pawnBlackMoves(board, row, column, prevMove);
 
-    case "pawnWhite":
-      return pawnWhiteMoves(board, row, column);
+  let { title, side } = figure;
+  const enemySide = side === "white" ? "black" : "white";
 
-    case "rookWhite":
-      arr = rookMoves(board, row, column, BLACK_FIGURES);
+  switch (title) {
+    case "pawn":
+      if (side === "black") {
+        return pawnMoves(board, row, column, 1, "white", pawnColumn);
+      } else {
+        return pawnMoves(board, row, column, -1, "black", pawnColumn);
+      }
+
+    case "rook":
+      arr = rookMoves(board, row, column, enemySide);
       break;
 
-    case "rookBlack":
-      arr = rookMoves(board, row, column, WHITE_FIGURES);
+    case "knight":
+      arr = knightMoves(board, row, column, enemySide);
       break;
 
-    case "knightWhite":
-      arr = knightMoves(board, row, column, BLACK_FIGURES);
+    case "bishop":
+      arr = bishopMoves(board, row, column, enemySide);
       break;
 
-    case "knightBlack":
-      arr = knightMoves(board, row, column, WHITE_FIGURES);
+    case "queen":
+      arr = queenMoves(board, row, column, enemySide);
       break;
 
-    case "bishopWhite":
-      arr = bishopMoves(board, row, column, BLACK_FIGURES);
-      break;
-    case "bishopBlack":
-      arr = bishopMoves(board, row, column, WHITE_FIGURES);
-      break;
-
-    case "queenWhite":
-      arr = queenMoves(board, row, column, BLACK_FIGURES);
-      break;
-    case "queenBlack":
-      arr = queenMoves(board, row, column, WHITE_FIGURES);
-      break;
-
-    case "kingWhite":
-      return kingMoves(board, row, column, BLACK_FIGURES);
-    case "kingBlack":
-      return kingMoves(board, row, column, WHITE_FIGURES);
+    case "king":
+      return kingMoves(board, row, column, enemySide);
   }
-
   return { arr, castling: undefined, enPassant: undefined };
 };

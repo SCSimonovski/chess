@@ -1,34 +1,40 @@
-import { ChessField } from "../../fixtures/chess-board";
+import { ChessField, FigureTitle } from "../../fixtures/chess-board";
 import { positionToIndices } from "../board/position-to-indices";
 
 export const protectKing = (
   board: Array<Array<ChessField>>,
-  figures: Array<string>,
-  value: string
+  enemySide: "white" | "black",
+  position: string
 ): boolean => {
-  const arr: string[] = [];
+  let [row, column] = positionToIndices(position);
 
-  let [row, column] = positionToIndices(value);
+  const attackFrom = (r: number, c: number, enemies: Array<FigureTitle>) => {
+    if (board[r][c].figure) {
+      const { side, title } = board[r][c].figure!;
+      if (side !== enemySide && enemies.includes(title)) {
+        return 1;
+      } else {
+        return -1;
+      }
+    }
+    return 0;
+  };
 
   ////////////////////////////////////////////////////////
-  // BlOCK WITH QUEEN OR ROOK ////////////////////////////
-  let ef: Array<string> = [];
-  figures.forEach((figure) => {
-    if (figure.includes("rook") || figure.includes("queen")) {
-      ef.push(figure);
-    }
-  });
+  // ATACK FROM QUEEN OR ROOK ////////////////////////////
+
   let r = row + 1;
   let c = column;
+  let response: number;
+  let enemies: Array<FigureTitle> = ["queen", "rook"];
 
   // FORWARD /////////////////////////////
   while (r <= 7) {
-    if (board[r][c].figure !== "empty") {
-      if (ef.includes(board[r][c].figure)) {
-        return true;
-      }
-      break;
-    }
+    response = attackFrom(r, c, enemies);
+
+    if (response === 1) return true;
+    if (response === -1) break;
+
     r++;
   }
 
@@ -36,12 +42,10 @@ export const protectKing = (
   r = row - 1;
 
   while (r >= 0) {
-    if (board[r][c].figure !== "empty") {
-      if (ef.includes(board[r][c].figure)) {
-        return true;
-      }
-      break;
-    }
+    response = attackFrom(r, c, enemies);
+
+    if (response === 1) return true;
+    if (response === -1) break;
 
     r--;
   }
@@ -51,12 +55,10 @@ export const protectKing = (
   c = column + 1;
 
   while (c <= 7) {
-    if (board[r][c].figure !== "empty") {
-      if (ef.includes(board[r][c].figure)) {
-        return true;
-      }
-      break;
-    }
+    response = attackFrom(r, c, enemies);
+
+    if (response === 1) return true;
+    if (response === -1) break;
 
     c++;
   }
@@ -65,35 +67,28 @@ export const protectKing = (
   c = column - 1;
 
   while (c >= 0) {
-    if (board[r][c].figure !== "empty") {
-      if (ef.includes(board[r][c].figure)) {
-        return true;
-      }
-      break;
-    }
+    response = attackFrom(r, c, enemies);
+
+    if (response === 1) return true;
+    if (response === -1) break;
+
     c--;
   }
 
   ////////////////////////////////////////////////////////
-  // BLOCK WITH BISHOP OR QUEEN //////////////////////////
-  ef = [];
-  figures.forEach((figure) => {
-    if (figure.includes("bishop") || figure.includes("queen")) {
-      ef.push(figure);
-    }
-  });
+  // ATACK FROM QUEEN OR BISHOP //////////////////////////
+
+  enemies = ["queen", "bishop"];
 
   // FORWARD RIGHT //////////////////////////////////////
   r = row + 1;
   c = column + 1;
 
   while (r <= 7 && c <= 7) {
-    if (board[r][c].figure !== "empty") {
-      if (ef.includes(board[r][c].figure)) {
-        return true;
-      }
-      break;
-    }
+    response = attackFrom(r, c, enemies);
+
+    if (response === 1) return true;
+    if (response === -1) break;
 
     r++;
     c++;
@@ -104,12 +99,11 @@ export const protectKing = (
   c = column - 1;
 
   while (r <= 7 && c >= 0) {
-    if (board[r][c].figure !== "empty") {
-      if (ef.includes(board[r][c].figure)) {
-        return true;
-      }
-      break;
-    }
+    response = attackFrom(r, c, enemies);
+
+    if (response === 1) return true;
+    if (response === -1) break;
+
     r++;
     c--;
   }
@@ -119,12 +113,10 @@ export const protectKing = (
   c = column + 1;
 
   while (r >= 0 && c <= 7) {
-    if (board[r][c].figure !== "empty") {
-      if (ef.includes(board[r][c].figure)) {
-        return true;
-      }
-      break;
-    }
+    response = attackFrom(r, c, enemies);
+
+    if (response === 1) return true;
+    if (response === -1) break;
 
     r--;
     c++;
@@ -135,25 +127,18 @@ export const protectKing = (
   c = column - 1;
 
   while (r >= 0 && c >= 0) {
-    if (board[r][c].figure !== "empty") {
-      if (ef.includes(board[r][c].figure)) {
-        return true;
-      }
-      break;
-    }
+    response = attackFrom(r, c, enemies);
+
+    if (response === 1) return true;
+    if (response === -1) break;
 
     r--;
     c--;
   }
 
   ////////////////////////////////////////////////////////
-  // BLOCK WITH KNIGHT ////////////////////////////////////
-  ef = [];
-  figures.forEach((figure) => {
-    if (figure.includes("knight")) {
-      ef.push(figure);
-    }
-  });
+  // ATACK FROM KNIGHT ////////////////////////////////////
+  enemies = ["knight"];
 
   // FORWARD ///////////
   r = row + 2;
@@ -161,20 +146,14 @@ export const protectKing = (
 
   if (r <= 7) {
     if (c <= 7) {
-      if (board[r][c].figure !== "empty") {
-        if (ef.includes(board[r][c].figure)) {
-          return true;
-        }
-      }
+      response = attackFrom(r, c, enemies);
+      if (response === 1) return true;
     }
 
     c = column - 1;
     if (c >= 0) {
-      if (board[r][c].figure !== "empty") {
-        if (ef.includes(board[r][c].figure)) {
-          return true;
-        }
-      }
+      response = attackFrom(r, c, enemies);
+      if (response === 1) return true;
     }
   }
 
@@ -184,20 +163,14 @@ export const protectKing = (
 
   if (r >= 0) {
     if (c <= 7) {
-      if (board[r][c].figure !== "empty") {
-        if (ef.includes(board[r][c].figure)) {
-          return true;
-        }
-      }
+      response = attackFrom(r, c, enemies);
+      if (response === 1) return true;
     }
 
     c = column - 1;
     if (c >= 0) {
-      if (board[r][c].figure !== "empty") {
-        if (ef.includes(board[r][c].figure)) {
-          return true;
-        }
-      }
+      response = attackFrom(r, c, enemies);
+      if (response === 1) return true;
     }
   }
 
@@ -206,20 +179,14 @@ export const protectKing = (
   r = row + 1;
   if (c <= 7) {
     if (r <= 7) {
-      if (board[r][c].figure !== "empty") {
-        if (ef.includes(board[r][c].figure)) {
-          return true;
-        }
-      }
+      response = attackFrom(r, c, enemies);
+      if (response === 1) return true;
     }
 
     r = row - 1;
     if (r >= 0) {
-      if (board[r][c].figure !== "empty") {
-        if (ef.includes(board[r][c].figure)) {
-          return true;
-        }
-      }
+      response = attackFrom(r, c, enemies);
+      if (response === 1) return true;
     }
   }
 
@@ -229,45 +196,37 @@ export const protectKing = (
 
   if (c >= 0) {
     if (r <= 7) {
-      if (board[r][c].figure !== "empty") {
-        if (ef.includes(board[r][c].figure)) {
-          return true;
-        }
-      }
+      response = attackFrom(r, c, enemies);
+      if (response === 1) return true;
     }
 
     r = row - 1;
     if (r >= 0) {
-      if (board[r][c].figure !== "empty") {
-        if (ef.includes(board[r][c].figure)) {
-          return true;
-        }
-      }
+      response = attackFrom(r, c, enemies);
+      if (response === 1) return true;
     }
   }
 
   ////////////////////////////////////////////////////////
   // BLOCK WITH PAWN ////////////////////////////////////
 
-  if (figures.includes("pawnBlack") && row < 6) {
-    if (board[row + 1][column].figure === "pawnBlack") return true;
+  if (enemySide === "white" && row < 6) {
+    if (board[row + 1][column].figure?.title === "pawn") return true;
 
     if (
       row === 4 &&
-      board[row + 2][column].figure === "pawnBlack" &&
-      board[row + 1][column].figure === "empty"
+      board[row + 2][column].figure?.title === "pawn" &&
+      !board[row + 1][column].figure
     ) {
       return true;
     }
-  }
-
-  if (figures.includes("pawnWhite") && row > 1) {
-    if (board[row - 1][column].figure === "pawnWhite") return true;
+  } else if (row > 1) {
+    if (board[row - 1][column].figure?.title === "pawn") return true;
 
     if (
       row === 3 &&
-      board[row - 2][column].figure === "pawnWhite" &&
-      board[row - 1][column].figure === "empty"
+      board[row - 2][column].figure?.title === "pawn" &&
+      !board[row - 1][column].figure
     ) {
       return true;
     }

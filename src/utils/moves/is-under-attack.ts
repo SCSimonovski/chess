@@ -1,34 +1,40 @@
-import { ChessField } from "../../fixtures/chess-board";
+import { ChessField, FigureTitle } from "../../fixtures/chess-board";
 import { positionToIndices } from "../board/position-to-indices";
 
 export const isUnderAttack = (
   board: Array<Array<ChessField>>,
-  enemyFigures: Array<string>,
-  value: string
+  enemySide: "white" | "black",
+  position: string
 ): boolean => {
-  const arr: string[] = [];
+  let [row, column] = positionToIndices(position);
 
-  let [row, column] = positionToIndices(value);
+  const attackFrom = (r: number, c: number, enemies: Array<FigureTitle>) => {
+    if (board[r][c].figure) {
+      const { side, title } = board[r][c].figure!;
+      if (side === enemySide && enemies.includes(title)) {
+        return 1;
+      } else if (title !== "king") {
+        return -1;
+      }
+    }
+    return 0;
+  };
 
   ////////////////////////////////////////////////////////
-  // CHECK FROM ROOK OR QUEEN ////////////////////////////
-  let ef: Array<string> = [];
-  enemyFigures.forEach((figure) => {
-    if (figure.includes("rook") || figure.includes("queen")) {
-      ef.push(figure);
-    }
-  });
+  // ATACK FROM QUEEN OR ROOK ////////////////////////////
+
   let r = row + 1;
   let c = column;
+  let response: number;
+  let enemies: Array<FigureTitle> = ["queen", "rook"];
 
   // FORWARD /////////////////////////////
   while (r <= 7) {
-    if (board[r][c].figure !== "empty") {
-      if (ef.includes(board[r][c].figure)) {
-        return true;
-      }
-      break;
-    }
+    response = attackFrom(r, c, enemies);
+
+    if (response === 1) return true;
+    if (response === -1) break;
+
     r++;
   }
 
@@ -36,12 +42,10 @@ export const isUnderAttack = (
   r = row - 1;
 
   while (r >= 0) {
-    if (board[r][c].figure !== "empty") {
-      if (ef.includes(board[r][c].figure)) {
-        return true;
-      }
-      break;
-    }
+    response = attackFrom(r, c, enemies);
+
+    if (response === 1) return true;
+    if (response === -1) break;
 
     r--;
   }
@@ -51,12 +55,10 @@ export const isUnderAttack = (
   c = column + 1;
 
   while (c <= 7) {
-    if (board[r][c].figure !== "empty") {
-      if (ef.includes(board[r][c].figure)) {
-        return true;
-      }
-      break;
-    }
+    response = attackFrom(r, c, enemies);
+
+    if (response === 1) return true;
+    if (response === -1) break;
 
     c++;
   }
@@ -65,35 +67,28 @@ export const isUnderAttack = (
   c = column - 1;
 
   while (c >= 0) {
-    if (board[r][c].figure !== "empty") {
-      if (ef.includes(board[r][c].figure)) {
-        return true;
-      }
-      break;
-    }
+    response = attackFrom(r, c, enemies);
+
+    if (response === 1) return true;
+    if (response === -1) break;
+
     c--;
   }
 
   ////////////////////////////////////////////////////////
-  // CHECK FROM BISHOP or QUEEN //////////////////////////
-  ef = [];
-  enemyFigures.forEach((figure) => {
-    if (figure.includes("bishop") || figure.includes("queen")) {
-      ef.push(figure);
-    }
-  });
+  // ATACK FROM QUEEN OR BISHOP //////////////////////////
+
+  enemies = ["queen", "bishop"];
 
   // FORWARD RIGHT //////////////////////////////////////
   r = row + 1;
   c = column + 1;
 
   while (r <= 7 && c <= 7) {
-    if (board[r][c].figure !== "empty") {
-      if (ef.includes(board[r][c].figure)) {
-        return true;
-      }
-      break;
-    }
+    response = attackFrom(r, c, enemies);
+
+    if (response === 1) return true;
+    if (response === -1) break;
 
     r++;
     c++;
@@ -104,12 +99,11 @@ export const isUnderAttack = (
   c = column - 1;
 
   while (r <= 7 && c >= 0) {
-    if (board[r][c].figure !== "empty") {
-      if (ef.includes(board[r][c].figure)) {
-        return true;
-      }
-      break;
-    }
+    response = attackFrom(r, c, enemies);
+
+    if (response === 1) return true;
+    if (response === -1) break;
+
     r++;
     c--;
   }
@@ -119,12 +113,10 @@ export const isUnderAttack = (
   c = column + 1;
 
   while (r >= 0 && c <= 7) {
-    if (board[r][c].figure !== "empty") {
-      if (ef.includes(board[r][c].figure)) {
-        return true;
-      }
-      break;
-    }
+    response = attackFrom(r, c, enemies);
+
+    if (response === 1) return true;
+    if (response === -1) break;
 
     r--;
     c++;
@@ -135,25 +127,18 @@ export const isUnderAttack = (
   c = column - 1;
 
   while (r >= 0 && c >= 0) {
-    if (board[r][c].figure !== "empty") {
-      if (ef.includes(board[r][c].figure)) {
-        return true;
-      }
-      break;
-    }
+    response = attackFrom(r, c, enemies);
+
+    if (response === 1) return true;
+    if (response === -1) break;
 
     r--;
     c--;
   }
 
   ////////////////////////////////////////////////////////
-  // CHECK FROM knight ////////////////////////////////////
-  ef = [];
-  enemyFigures.forEach((figure) => {
-    if (figure.includes("knight")) {
-      ef.push(figure);
-    }
-  });
+  // ATACK FROM KNIGHT ////////////////////////////////////
+  enemies = ["knight"];
 
   // FORWARD ///////////
   r = row + 2;
@@ -161,20 +146,14 @@ export const isUnderAttack = (
 
   if (r <= 7) {
     if (c <= 7) {
-      if (board[r][c].figure !== "empty") {
-        if (ef.includes(board[r][c].figure)) {
-          return true;
-        }
-      }
+      response = attackFrom(r, c, enemies);
+      if (response === 1) return true;
     }
 
     c = column - 1;
     if (c >= 0) {
-      if (board[r][c].figure !== "empty") {
-        if (ef.includes(board[r][c].figure)) {
-          return true;
-        }
-      }
+      response = attackFrom(r, c, enemies);
+      if (response === 1) return true;
     }
   }
 
@@ -184,20 +163,14 @@ export const isUnderAttack = (
 
   if (r >= 0) {
     if (c <= 7) {
-      if (board[r][c].figure !== "empty") {
-        if (ef.includes(board[r][c].figure)) {
-          return true;
-        }
-      }
+      response = attackFrom(r, c, enemies);
+      if (response === 1) return true;
     }
 
     c = column - 1;
     if (c >= 0) {
-      if (board[r][c].figure !== "empty") {
-        if (ef.includes(board[r][c].figure)) {
-          return true;
-        }
-      }
+      response = attackFrom(r, c, enemies);
+      if (response === 1) return true;
     }
   }
 
@@ -206,20 +179,14 @@ export const isUnderAttack = (
   r = row + 1;
   if (c <= 7) {
     if (r <= 7) {
-      if (board[r][c].figure !== "empty") {
-        if (ef.includes(board[r][c].figure)) {
-          return true;
-        }
-      }
+      response = attackFrom(r, c, enemies);
+      if (response === 1) return true;
     }
 
     r = row - 1;
     if (r >= 0) {
-      if (board[r][c].figure !== "empty") {
-        if (ef.includes(board[r][c].figure)) {
-          return true;
-        }
-      }
+      response = attackFrom(r, c, enemies);
+      if (response === 1) return true;
     }
   }
 
@@ -229,45 +196,54 @@ export const isUnderAttack = (
 
   if (c >= 0) {
     if (r <= 7) {
-      if (board[r][c].figure !== "empty") {
-        if (ef.includes(board[r][c].figure)) {
-          return true;
-        }
-      }
+      response = attackFrom(r, c, enemies);
+      if (response === 1) return true;
     }
 
     r = row - 1;
     if (r >= 0) {
-      if (board[r][c].figure !== "empty") {
-        if (ef.includes(board[r][c].figure)) {
-          return true;
-        }
-      }
+      response = attackFrom(r, c, enemies);
+      if (response === 1) return true;
     }
   }
 
-  ////////////////////////////////////////////////////////
-  // CHECK FROM PAWN ////////////////////////////////////
-
-  if (enemyFigures.includes("pawnBlack") && row + 1 <= 6) {
-    if (column + 1 <= 7 && board[row + 1][column + 1].figure === "pawnBlack") {
+  /////////////////////////////////////////////////////////////////////
+  // ATTACK FROM PAWN /////////////////////////////////////////////////
+  const checkFromPawn = (r: number, c: number, side: "white" | "black") => {
+    console.log(r, c, "okeeeee");
+    if (
+      r >= 0 &&
+      r <= 7 &&
+      c >= 0 &&
+      r <= 7 &&
+      board[r][c].figure?.title === "pawn" &&
+      board[r][c].figure?.side === side
+    ) {
       return true;
     }
+  };
 
-    if (column - 1 >= 0 && board[row + 1][column - 1].figure === "pawnBlack") {
-      return true;
-    }
+  /////////////////////////////////////////////////////////////////
+
+  if (enemySide === "white") {
+    r = row + 1;
+    c = column + 1;
+
+    if (checkFromPawn(r, c, "white")) return true;
+
+    c = column - 1;
+    if (checkFromPawn(r, c, "white")) return true;
+  } else {
+    r = row - 1;
+    c = column - 1;
+
+    if (checkFromPawn(r, c, "black")) return true;
+
+    c = column + 1;
+    if (checkFromPawn(r, c, "black")) return true;
   }
 
-  if (enemyFigures.includes("pawnWhite") && row - 1 >= 1) {
-    if (column + 1 <= 7 && board[row - 1][column + 1].figure === "pawnWhite") {
-      return true;
-    }
-
-    if (column - 1 >= 0 && board[row - 1][column - 1].figure === "pawnWhite") {
-      return true;
-    }
-  }
+  ///////////////////////////////////////////////////////////////////
 
   return false;
 };

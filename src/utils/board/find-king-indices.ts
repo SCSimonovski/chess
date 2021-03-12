@@ -1,21 +1,25 @@
-import { ChessFigure, ChessField } from "../../fixtures/chess-board";
+import { ChessField } from "../../fixtures/chess-board";
 
 export const findKingIndices = (
   board: Array<Array<ChessField>>,
-  kingToFind: string
+  side: "white" | "black"
 ) => {
-  let king: ChessField | undefined;
+  let field: ChessField | undefined;
   let row = 0;
   let column = 0;
 
   board.some((r) => {
-    king = r.find((field) => field.figure === kingToFind);
+    field = r.find(
+      ({ figure }) => figure?.title === "king" && figure?.side === side
+    );
 
-    if (king) {
-      let indices = king.fieldIndices.split("");
+    if (field) {
+      let indices = field.position.split("");
       row = parseInt(indices[0]);
       column = parseInt(indices[1]);
     }
+
+    return !!field;
   });
 
   return [row, column];
