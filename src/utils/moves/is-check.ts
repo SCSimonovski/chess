@@ -3,7 +3,7 @@ import { findKingIndices } from "../board/find-king-indices";
 
 export const isCheck = (
   board: Array<Array<ChessField>>,
-  enemySide: "white" | "black"
+  enemySide: string
 ): Array<string> => {
   const arr: string[] = [];
 
@@ -169,7 +169,7 @@ export const isCheck = (
       r >= 0 &&
       r <= 7 &&
       c >= 0 &&
-      r <= 7 &&
+      c <= 7 &&
       board[r][c].figure?.title === "pawn" &&
       board[r][c].figure?.side === side
     ) {

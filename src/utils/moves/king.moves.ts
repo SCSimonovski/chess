@@ -6,7 +6,7 @@ export const kingMoves = (
   board: Array<Array<ChessField>>,
   row: number,
   column: number,
-  enemySide: "white" | "black"
+  enemySide: string
 ): AvailableMoves => {
   const arr: string[] = [];
 
@@ -74,38 +74,39 @@ export const kingMoves = (
 
   let castling: Castling | undefined = undefined;
 
+  const n = column === 3 ? 1 : -1;
   if (board[row][column].figure!.firstMove) {
     if (
-      board[row][column + 4].figure?.title === "rook" &&
-      board[row][column + 4].figure?.firstMove &&
-      !board[row][column + 1].figure &&
-      !board[row][column + 2].figure &&
-      !board[row][column + 3].figure
+      board[row][column + 4 * n].figure?.title === "rook" &&
+      board[row][column + 4 * n].figure?.firstMove &&
+      !board[row][column + 1 * n].figure &&
+      !board[row][column + 2 * n].figure &&
+      !board[row][column + 3 * n].figure
     ) {
-      if (!isUnderAttack(board, enemySide, `${row}${column + 1}`)) {
-        arr.push(`${row}${column + 2}`);
+      if (!isUnderAttack(board, enemySide, `${row}${column + 1 * n}`)) {
+        arr.push(`${row}${column + 2 * n}`);
         castling = {
-          position: `${row}${column + 2}`,
-          rookPosFrom: `${row}${column + 4}`,
-          rookPosTo: `${row}${column + 1}`,
-          rook: board[row][column + 4].figure!,
+          position: `${row}${column + 2 * n}`,
+          rookPosFrom: `${row}${column + 4 * n}`,
+          rookPosTo: `${row}${column + 1 * n}`,
+          rook: board[row][column + 4 * n].figure!,
         };
       }
     }
 
     if (
-      board[row][column - 3].figure?.title === "rook" &&
-      board[row][column - 3].figure?.firstMove &&
-      !board[row][column - 1].figure &&
-      !board[row][column - 2].figure
+      board[row][column - 3 * n].figure?.title === "rook" &&
+      board[row][column - 3 * n].figure?.firstMove &&
+      !board[row][column - 1 * n].figure &&
+      !board[row][column - 2 * n].figure
     ) {
-      if (!isUnderAttack(board, enemySide, `${row}${column - 1}`)) {
-        arr.push(`${row}${column - 2}`);
+      if (!isUnderAttack(board, enemySide, `${row}${column - 1 * n}`)) {
+        arr.push(`${row}${column - 2 * n}`);
         castling = {
-          position: `${row}${column - 2}`,
-          rookPosFrom: `${row}${column - 3}`,
-          rookPosTo: `${row}${column - 1}`,
-          rook: board[row][column - 3].figure!,
+          position: `${row}${column - 2 * n}`,
+          rookPosFrom: `${row}${column - 3 * n}`,
+          rookPosTo: `${row}${column - 1 * n}`,
+          rook: board[row][column - 3 * n].figure!,
         };
       }
     }

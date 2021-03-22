@@ -8,15 +8,14 @@ export const findKingIndices = (
   let row = 0;
   let column = 0;
 
-  board.some((r) => {
-    field = r.find(
-      ({ figure }) => figure?.title === "king" && figure?.side === side
+  board.some((r, i) => {
+    let j = r.findIndex(
+      ({ figure }, j) => figure?.title === "king" && figure?.side === side
     );
 
-    if (field) {
-      let indices = field.position.split("");
-      row = parseInt(indices[0]);
-      column = parseInt(indices[1]);
+    if (j !== -1) {
+      row = i;
+      column = j;
     }
 
     return !!field;

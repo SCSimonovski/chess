@@ -2,9 +2,8 @@ export const moveFigureAt = (
   pageX: number,
   pageY: number,
   divFigure: any,
-  elemBelow: any
+  boardElem: any
 ) => {
-  const boardElem = elemBelow.parentElement.parentElement;
   const { x, y, width, height } = boardElem.getBoundingClientRect();
 
   if (pageX > x && pageX < x + width) {

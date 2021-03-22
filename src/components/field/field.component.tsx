@@ -1,21 +1,24 @@
+import { useContext } from "react";
+import { GameContext } from "../../context/game.context";
+
 import Figure from "../figure/figure.component";
-import { BOARD_MATRIX, ChessField } from "../../fixtures/chess-board";
+
+import { ChessBoard, ChessFigure } from "../../fixtures/chess-board";
 
 import { availableMoves } from "../../utils/moves/moves";
-import { isCheck } from "../../utils/moves/is-check";
-import { isCheckmate } from "../../utils/board/is-checkmate";
 import { moveFigureAt } from "../../utils/move-figure-at";
-import { castling, enPassant } from "../../utils/board/castling";
 
-import { AvailableMoves } from "../../utils/types";
+import { AvailableMoves, PosPawnPromotion } from "../../utils/types";
 import { positionToIndices } from "../../utils/board/position-to-indices";
 
 import "./field.styles.scss";
-import { isAllowed } from "../../utils/moves/is-allowed.move";
-
-let board = BOARD_MATRIX;
-let sideOnMove = "white";
-let pawnColumn = -1;
+import { boardFinalVersion } from "../../utils/board/update-board";
+import {
+  highlightMoves,
+  removeHighlightedMoves,
+  highlightPlayedMove,
+  removePrevMoveHighlight,
+} from "../../utils/board/highlight-moves";
 
 let moves: AvailableMoves = {
   arr: [],
@@ -23,90 +26,197 @@ let moves: AvailableMoves = {
   enPassant: undefined,
 };
 
-let checkArr: Array<string> = [];
+type Props = {
+  position: string;
+  figure: ChessFigure | null;
+  color: "white" | "black";
+  sendPlayedMoves: any;
+  board: ChessBoard;
+  handleSetBoard: any;
+  isMyTurn: boolean;
+  mySide: string;
+  enPassantPosition: number;
+  handleOpenPawnPromotion: (pos: PosPawnPromotion) => void;
+};
 
-const Field = ({ figure, color, position }: ChessField) => {
+let prevPlayedMove: {
+  from: string;
+  to: string;
+} | null = null;
+
+let highlightedMoves: {
+  selectedEl: any;
+  moves: Array<string>;
+} | null = null;
+
+let prevClickedFieldEl: any;
+
+const Field = ({
+  figure,
+  color,
+  position,
+  sendPlayedMoves,
+  board,
+  handleSetBoard,
+  isMyTurn,
+  mySide,
+  enPassantPosition,
+  handleOpenPawnPromotion,
+}: Props) => {
+  const { setIsGameOver } = useContext(GameContext);
+  const handleOnClick = (e: any) => {
+    let elemBelow = e.currentTarget;
+
+    if (prevClickedFieldEl?.firstChild?.firstChild && (isMyTurn || true)) {
+      let [row, column] = positionToIndices(prevClickedFieldEl.id);
+      const figure = board[row][column].figure!;
+
+      /////////////////////////////////////////////////////
+      [row, column] = positionToIndices(elemBelow.id);
+      const figureBelow = board[row][column].figure;
+      if (figureBelow?.side === mySide) {
+        prevClickedFieldEl = elemBelow;
+        return;
+      }
+      /////////////////////////////////////////////////////
+
+      if (figure.side === mySide) {
+        moves = availableMoves(
+          figure,
+          prevClickedFieldEl.id,
+          board,
+          enPassantPosition
+        );
+        let move = moves.arr.find((move) => move === elemBelow.id);
+
+        if (move) {
+          const { newBoard, enPassantPos, checkmate } = boardFinalVersion(
+            board,
+            figure,
+            moves,
+            move,
+            prevClickedFieldEl,
+            mySide,
+            handleOpenPawnPromotion,
+            elemBelow
+          );
+
+          if (checkmate) setIsGameOver(mySide);
+
+          prevPlayedMove = {
+            from: prevClickedFieldEl.id,
+            to: elemBelow.id,
+          };
+
+          highlightPlayedMove(prevPlayedMove);
+
+          handleSetBoard(newBoard);
+          sendPlayedMoves(newBoard, enPassantPos);
+        }
+        prevClickedFieldEl = null;
+      }
+    } else {
+      prevClickedFieldEl = elemBelow;
+    }
+  };
+
   const onMouseDown = (e: any) => {
-    if (e.currentTarget.firstChild) {
-      const divFigure = e.currentTarget.firstChild;
-      divFigure.style.position = "absolute";
+    if (highlightedMoves) removeHighlightedMoves(highlightedMoves);
+    if (prevPlayedMove) removePrevMoveHighlight(prevPlayedMove);
+
+    if (e.currentTarget.firstChild.firstChild) {
+      let elemBelow = e.currentTarget;
+      const selectedFieldEl = elemBelow;
+      const boardEl = elemBelow.parentElement.parentElement;
+      const figureEl = e.currentTarget.firstChild;
+
+      /*Setting the width and the height of the picked figure
+            to not expand more than its original size when position is absolute */
+      const figureImgEl = figureEl.firstChild;
+      const { width, height } = figureImgEl.getBoundingClientRect();
+      figureImgEl.style.width = width + "px";
+      figureImgEl.style.height = height + "px";
+      figureEl.style.position = "absolute";
+      ////////////////////////////////////////////////////////////////
 
       const [row, column] = positionToIndices(position);
-
       const figure = board[row][column].figure!;
-      const enemySide = figure.side === "white" ? "black" : "white";
+      if ((isMyTurn || true) && figure.side === mySide) {
+        prevClickedFieldEl = selectedFieldEl;
+        moves = availableMoves(figure, position, board, enPassantPosition);
+      } else {
+        moves.arr = [];
+      }
 
-      let elemBelow = e.currentTarget;
+      /////////////////////////////////////////////////////////////////
+      highlightedMoves = {
+        selectedEl: selectedFieldEl,
+        moves: moves.arr,
+      };
+      highlightMoves(highlightedMoves);
+      //////////////////////////////////////////////////////////////
 
       const { pageX, pageY } = e;
-      moveFigureAt(pageX, pageY, divFigure, elemBelow);
+      moveFigureAt(pageX, pageY, figureEl, elemBelow);
 
       //  On Mouse Move /////////////////////////////////////////////
+      let prevElemBelow = e.currentTarget;
+      prevElemBelow.classList.add("field-border");
       const onMouseMove = (e: any) => {
         const { pageX, pageY } = e;
-        moveFigureAt(pageX, pageY, divFigure, elemBelow);
+        moveFigureAt(pageX, pageY, figureEl, boardEl);
         elemBelow = document.elementFromPoint(pageX, pageY);
+        if (elemBelow?.title === "empty") elemBelow = elemBelow.parentElement;
+
+        if (elemBelow?.id?.length === 2 && elemBelow !== prevElemBelow) {
+          prevElemBelow.classList.remove("field-border");
+          elemBelow?.classList.add("field-border");
+          prevElemBelow = elemBelow;
+        }
       };
       document.addEventListener("mousemove", onMouseMove);
 
+      ///////////////////////////////////////////////////////////////
       // On Mouse Up ////////////////////////////////////////////////
       const onMouseUp = () => {
         document.removeEventListener("mousemove", onMouseMove);
-        divFigure.style.position = "static";
 
-        let [i, j] = positionToIndices(elemBelow.id);
-        let enemyFigure = board[i][j].figure;
-        let allow = false;
+        figureImgEl.style.width = "90%";
+        figureImgEl.style.height = "90%";
+        figureEl.style.position = "static";
 
-        if (
-          figure.side === sideOnMove &&
-          elemBelow?.id.length === 2 &&
-          elemBelow.id !== position
-        ) {
-          moves = availableMoves(figure, position, board, pawnColumn);
-          allow = isAllowed(
-            moves,
+        let move: string | undefined;
+        move = moves.arr.find((move) => move === elemBelow?.id);
+        if (move) {
+          prevClickedFieldEl = null;
+          const { newBoard, enPassantPos, checkmate } = boardFinalVersion(
             board,
-            elemBelow.id,
-            position,
             figure,
-            enemyFigure,
-            enemySide
+            moves,
+            move,
+            selectedFieldEl,
+            mySide,
+            handleOpenPawnPromotion,
+            elemBelow
           );
+
+          if (checkmate) setIsGameOver(mySide);
+
+          prevPlayedMove = {
+            from: selectedFieldEl.id,
+            to: elemBelow.id,
+          };
+
+          if (highlightedMoves) removeHighlightedMoves(highlightedMoves);
+          highlightedMoves = null;
+
+          highlightPlayedMove(prevPlayedMove);
+
+          handleSetBoard(newBoard);
+          sendPlayedMoves(newBoard, enPassantPos, prevPlayedMove);
         }
 
-        if (allow) {
-          if (moves.castling?.position === elemBelow.id) {
-            board = castling(board, moves.castling!);
-          }
-
-          if (moves.enPassant?.pawnIndices === elemBelow.id) {
-            board = enPassant(board, moves.enPassant!);
-          }
-
-          if (figure.title === "pawn" && figure.firstMove) {
-            pawnColumn = j;
-          } else {
-            pawnColumn = -1;
-          }
-
-          checkArr = isCheck(board, enemySide);
-          if (checkArr.length !== 0) {
-            let checkmate = isCheckmate(board, enemySide, checkArr);
-
-            if (checkmate) {
-              console.log("CHECKMATE!!! Game is Over!");
-            }
-          }
-
-          board[i][j].figure!.firstMove = false;
-          sideOnMove = sideOnMove === "white" ? "black" : "white";
-
-          if (elemBelow.firstChild) {
-            elemBelow.removeChild(elemBelow.firstChild);
-          }
-          elemBelow.appendChild(divFigure);
-        }
+        prevElemBelow.classList.remove("field-border");
         document.removeEventListener("mouseup", onMouseUp);
       };
       document.addEventListener("mouseup", onMouseUp);
@@ -115,12 +225,18 @@ const Field = ({ figure, color, position }: ChessField) => {
 
   return (
     <div
+      color={color}
       className={`field ${color}`}
       id={position}
       onMouseDown={onMouseDown}
+      onClick={handleOnClick}
       draggable="false"
     >
-      {figure && <Figure title={figure.title} side={figure.side} />}
+      {figure ? (
+        <Figure title={figure.title} side={figure.side} />
+      ) : (
+        <div title="empty" className="field-empty"></div>
+      )}
     </div>
   );
 };

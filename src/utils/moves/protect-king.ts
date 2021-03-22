@@ -3,7 +3,7 @@ import { positionToIndices } from "../board/position-to-indices";
 
 export const protectKing = (
   board: Array<Array<ChessField>>,
-  enemySide: "white" | "black",
+  enemySide: string,
   position: string
 ): boolean => {
   let [row, column] = positionToIndices(position);
@@ -209,24 +209,15 @@ export const protectKing = (
 
   ////////////////////////////////////////////////////////
   // BLOCK WITH PAWN ////////////////////////////////////
+  const n = enemySide === "white" ? -1 : 1;
 
-  if (enemySide === "white" && row < 6) {
-    if (board[row + 1][column].figure?.title === "pawn") return true;
-
-    if (
-      row === 4 &&
-      board[row + 2][column].figure?.title === "pawn" &&
-      !board[row + 1][column].figure
-    ) {
-      return true;
-    }
-  } else if (row > 1) {
-    if (board[row - 1][column].figure?.title === "pawn") return true;
+  if (row < 6 && row > 1) {
+    if (board[row + n][column].figure?.title === "pawn") return true;
 
     if (
-      row === 3 &&
-      board[row - 2][column].figure?.title === "pawn" &&
-      !board[row - 1][column].figure
+      board[row + n + n][column].figure?.title === "pawn" &&
+      board[row + n + n][column].figure?.firstMove &&
+      !board[row + n][column].figure
     ) {
       return true;
     }

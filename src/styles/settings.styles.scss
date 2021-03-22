@@ -9,6 +9,9 @@ $dark-blue: #24313f;
 $blue: #5e94db;
 $error-red: #db4040;
 $border: #000;
+$field-border: rgb(189, 189, 189);
+$selected-light: rgb(216, 255, 44);
+$selected-dark: darken($selected-light, 20%);
 
 //fields colors
 $field-light: #fff8dc;
@@ -24,6 +27,8 @@ $field-size: 70px;
 
 $font-size-page-link: 2.2rem;
 $font-size-page-link-dt: 2.6rem;
+
+$font-size: 1.2rem;
 
 $font-size-text: 1rem;
 

@@ -1,50 +1,58 @@
 @import "../../styles/settings.styles.scss";
 
 .board {
-  width: 100vw;
-  height: 100vh;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: 1fr auto;
+  height: 100%;
 
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  .fields {
+    height: 100%;
+    width: 100%;
 
-  .letters {
-    display: flex;
-    margin-left: $s-size;
-    margin-top: $xs-size;
-  }
+    padding: 3px;
 
-  .letter {
-    width: $field-size;
-    display: flex;
-    align-items: center;
-    flex-direction: column;
+    display: grid;
+    grid-template: repeat(8, 1fr) / repeat(8, 1fr);
+
+    &.disabled {
+      pointer-events: none;
+    }
   }
 
   .numbers {
-    margin-right: $s-size;
+    // justify-content: flex-start;
+    padding-right: 5px;
+    display: grid;
+
+    color: grey;
+
+    .number {
+      margin: auto;
+    }
   }
 
-  .number {
-    display: flex;
-    align-items: center;
-    height: $field-size;
-  }
+  .letters {
+    // align-content: flex-end;
+    display: grid;
+    grid-auto-flow: column;
+    grid-column: 2/3;
 
-  .fields-container {
-    display: flex;
-  }
+    color: grey;
 
-  .fields {
-    display: flex;
-    flex-direction: column;
+    grid-template-columns: repeat(1fr);
 
-    border: 2px solid $grey;
-  }
-
-  .row {
-    display: flex;
-    background-color: aqua;
+    .letter {
+      margin: auto;
+    }
   }
 }
+
+// .noselect {
+//   -webkit-touch-callout: none; /* iOS Safari */
+//   -webkit-user-select: none; /* Safari */
+//   -khtml-user-select: none; /* Konqueror HTML */
+//   -moz-user-select: none; /* Old versions of Firefox */
+//   -ms-user-select: none; /* Internet Explorer/Edge */
+//   user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
+// }

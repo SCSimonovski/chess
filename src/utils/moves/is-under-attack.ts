@@ -3,7 +3,7 @@ import { positionToIndices } from "../board/position-to-indices";
 
 export const isUnderAttack = (
   board: Array<Array<ChessField>>,
-  enemySide: "white" | "black",
+  enemySide: string,
   position: string
 ): boolean => {
   let [row, column] = positionToIndices(position);
@@ -13,7 +13,7 @@ export const isUnderAttack = (
       const { side, title } = board[r][c].figure!;
       if (side === enemySide && enemies.includes(title)) {
         return 1;
-      } else if (title !== "king") {
+      } else {
         return -1;
       }
     }
@@ -209,13 +209,13 @@ export const isUnderAttack = (
 
   /////////////////////////////////////////////////////////////////////
   // ATTACK FROM PAWN /////////////////////////////////////////////////
+
   const checkFromPawn = (r: number, c: number, side: "white" | "black") => {
-    console.log(r, c, "okeeeee");
     if (
       r >= 0 &&
       r <= 7 &&
       c >= 0 &&
-      r <= 7 &&
+      c <= 7 &&
       board[r][c].figure?.title === "pawn" &&
       board[r][c].figure?.side === side
     ) {

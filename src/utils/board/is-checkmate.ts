@@ -9,7 +9,7 @@ import { protectKing } from "../moves/protect-king";
 
 export const isCheckmate = (
   board: Array<Array<ChessField>>,
-  enemySide: "white" | "black",
+  enemySide: string,
   checkArr: Array<string>
 ): boolean => {
   let moves: AvailableMoves;
@@ -22,24 +22,19 @@ export const isCheckmate = (
   let [i, j] = positionToIndices(checkArr[0]);
   const figure = board[i][j].figure;
 
-  console.log(figure);
-
   moves = kingMoves(board, row, column, enemySide);
-
-  console.log(moves, "moves");
 
   if (checkArr.length > 1 && moves.arr.length === 0) {
     return true;
   }
 
-  if (!isUnderAttack(board, alliesSide, checkArr[0])) {
+  if (isUnderAttack(board, alliesSide, checkArr[0])) {
     return false;
   }
 
+  // return false if some of the available moves for the king is not under attack //
   checkmate = !moves.arr.some((move) => !isUnderAttack(board, enemySide, move));
   if (!checkmate) {
-    console.log("honest mistake!");
-
     return false;
   }
 
