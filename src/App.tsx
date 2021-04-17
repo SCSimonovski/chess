@@ -4,12 +4,11 @@ import { io } from "socket.io-client";
 import { ThemeProvider } from "@material-ui/styles";
 import GameContextProvider from "./context/game.context";
 
-import Homepage from "./components/homepage/homepage.component";
-import ChessRoom from "./components/chess-room/chess-room.component";
+import Homepage from "./screens/homepage/homepage.component";
+import ChessRoom from "./screens/chess-room/chess-room.component";
 
 import "./app.styles.scss";
 import { theme } from "./styles/theme.styles";
-import { useEffect } from "react";
 
 export const socket = io("http://localhost:5000");
 

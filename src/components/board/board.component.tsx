@@ -1,7 +1,11 @@
-import React, { useState, useEffect, useContext, useCallback } from "react";
-
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useCallback,
+  useRef,
+} from "react";
 import { socket } from "../../App";
-
 import { GameContext } from "../../context/game.context";
 
 import Paper from "@material-ui/core/Paper";
@@ -9,129 +13,219 @@ import Field from "../field/field.component";
 import PawnPromotion from "../pawn-promotion/pawn-promotion.component";
 
 import {
-  ChessBoard,
   BOARD_MATRIX,
   BOARD_NUMBERS,
   BOARD_LETTERS,
-  FigureTitle,
-} from "../../fixtures/chess-board";
+  BOARD_MATRIX_REVERSED,
+} from "../../constants/chess-board";
+
+import {
+  highlightPlayedMove,
+  removeHighlightedMove,
+} from "../../utils/board/highlight-moves";
+import { ChessBoard } from "../../types/types";
 
 import "./board.styles.scss";
-import { PosPawnPromotion } from "../../utils/types";
-import { positionToIndices } from "../../utils/board/position-to-indices";
-import { updateBoardOnPawnPromotion } from "../../utils/board/update-board";
-import { highlightPlayedMove } from "../../utils/board/highlight-moves";
 
 const Board = () => {
   const {
     gameInfo,
     isGameStarted,
     isGameOver,
-    isMyTurn,
-    toggleIsMyTurn,
-    setIsGameOver,
+    sideOnMove,
+    playerBoardSide,
+    flip,
+    board: spectatorsBoard,
+    handlePlayedMoves,
   } = useContext(GameContext);
 
-  const [board, setBoard] = useState<ChessBoard>(BOARD_MATRIX);
-  const [size, setSize] = useState(0);
+  const initialRender = useRef(true);
 
+  const [board, setBoard] = useState<ChessBoard>(BOARD_MATRIX);
   const [numbers, setNumbers] = useState<Array<number>>(BOARD_NUMBERS);
   const [letters, setLetters] = useState<Array<string>>(BOARD_LETTERS);
 
-  const [enPassantPosition, setEnPassantPosition] = useState<number>(-1);
+  const [size, setSize] = useState(1);
+  const [inlineStyles, setInlineStyles] = useState<any>();
+  const [playedMove, setPlayedMove] = useState<any>(null);
+  const [enPassantPosition, setEnPassantPosition] = useState<string>("");
+
+  window.onresize = () => {
+    const grid = document.getElementById("boardGrid");
+    const width =
+      window.innerWidth < 650 ? window.innerWidth + "px" : grid!.offsetHeight;
+    const height = width;
+
+    setInlineStyles({ width, height });
+    setSize(grid!.offsetHeight);
+  };
+
+  ///////////////////////////////////////////////////////////////////////////////
+  // FUNCTIONS /////////////////////////////////////////////////////////////////
+
+  const flipBoard = () => {
+    setBoard((board) => {
+      let boardCopy = board.map((row: any) =>
+        row.map((column: any) => ({ ...column }))
+      );
+      return boardCopy.reverse().map((row: any) => row.reverse());
+    });
+  };
+
+  const handleOpponentsMove = useCallback(() => {
+    if (!gameInfo.isSpectator) {
+      socket.on("move", (data) => {
+        let { updatedBoard, enPassantPos, playedMove: opponentsMove } = data;
+
+        setPlayedMove((playedMove: any) => {
+          removeHighlightedMove(playedMove);
+          return opponentsMove;
+        });
+        handlePlayedMoves(opponentsMove);
+        setEnPassantPosition(enPassantPos);
+        setBoard(updatedBoard);
+      });
+    }
+  }, [
+    handlePlayedMoves,
+    setEnPassantPosition,
+    setBoard,
+    setPlayedMove,
+    gameInfo.isSpectator,
+  ]);
+
+  const handleMoveForSpectators = useCallback(() => {
+    if (gameInfo.isSpectator) {
+      socket.on(
+        "moveForSpectators",
+        ({ updatedBoard, enPassantPos, playedMove: opponentsMove }) => {
+          setPlayedMove((playedMove: any) => {
+            removeHighlightedMove(playedMove);
+            return opponentsMove;
+          });
+          handlePlayedMoves(opponentsMove);
+
+          setEnPassantPosition(enPassantPos);
+          setBoard(updatedBoard);
+
+          if (flip) flipBoard();
+        }
+      );
+    }
+  }, [
+    flip,
+    setEnPassantPosition,
+    setBoard,
+    setPlayedMove,
+    handlePlayedMoves,
+    gameInfo.isSpectator,
+  ]);
+
+  const sendPlayedMove = useCallback(
+    (newBoard: ChessBoard, enPassantPos: number, move: any) => {
+      removeHighlightedMove(playedMove);
+
+      setPlayedMove(move);
+      handlePlayedMoves(move);
+      setBoard(newBoard);
+
+      socket.emit("move", {
+        room: gameInfo.room,
+        updatedBoard: newBoard,
+        enPassantPos,
+        playedMove: move,
+      });
+    },
+    [gameInfo.room, playedMove, handlePlayedMoves]
+  );
+
+  //////////////////////////////////////////////////////////////////////////
+  // USE EFFECTS ///////////////////////////////////////////////////////////
 
   useEffect(() => {
     const grid = document.getElementById("boardGrid");
     setSize(grid!.offsetHeight);
 
+    const width =
+      window.innerWidth < 650 ? window.innerWidth + "px" : grid!.offsetHeight;
+    const height = width;
+
+    setInlineStyles({ width, height });
+  }, [setSize]);
+
+  useEffect(() => {
     const boardData = sessionStorage.getItem("boardData");
     if (boardData) {
       setBoard(JSON.parse(boardData));
+      return;
     }
 
-    socket.on("opponentMove", (data) => {
-      toggleIsMyTurn();
-      const { updatedBoard, enPassantPos, prevPlayedMove } = data;
-
-      highlightPlayedMove(prevPlayedMove);
-      setEnPassantPosition(enPassantPos);
-      setBoard(updatedBoard);
-    });
-  }, [setEnPassantPosition, setBoard, setSize, toggleIsMyTurn]);
-
-  useEffect(() => {
-    if (gameInfo.player.side === "black" && board === BOARD_MATRIX) {
-      setNumbers([...BOARD_NUMBERS.reverse()]);
-      setLetters([...BOARD_LETTERS.reverse()]);
-      setBoard([...board.reverse().map((row) => [...row.reverse()])]);
+    if (spectatorsBoard && isGameStarted) {
+      setBoard(spectatorsBoard);
+      return;
     }
-  }, [board, gameInfo, setBoard, setLetters, setNumbers, gameInfo.player.side]);
+
+    setPlayedMove(null);
+
+    if (
+      (playerBoardSide === "down" && gameInfo.player.side === "white") ||
+      (playerBoardSide === "up" && gameInfo.player.side === "black")
+    ) {
+      setBoard(BOARD_MATRIX);
+    } else {
+      setBoard(BOARD_MATRIX_REVERSED);
+    }
+  }, [gameInfo.player.side, isGameStarted, setBoard]);
 
   useEffect(() => {
-    sessionStorage.setItem("boardData", JSON.stringify(board));
-  }, [board]);
+    const enPassantPosition = sessionStorage.getItem("enPassantPosition");
+    if (enPassantPosition) setEnPassantPosition(JSON.parse(enPassantPosition));
 
-  const handleSetBoard = (board: ChessBoard) => {
-    setBoard(board);
-  };
+    const playedMove = sessionStorage.getItem("playedMove");
+    if (playedMove) {
+      setPlayedMove(JSON.parse(playedMove));
+    }
 
-  const sendPlayedMoves = useCallback(
-    (
-      newBoard: ChessBoard,
-      enPassantPos: number,
-      prevPlayedMove: { from: string; to: string }
-    ) => {
-      toggleIsMyTurn();
+    handleOpponentsMove();
+  }, []);
 
-      let boardCopy = newBoard.map((row) =>
-        row.map((column) => ({ ...column }))
+  useEffect(() => {
+    sessionStorage.setItem("playedMove", JSON.stringify(playedMove));
+  }, [playedMove]);
+
+  useEffect(() => {
+    handleMoveForSpectators();
+  }, [flip, handleMoveForSpectators]);
+
+  useEffect(() => {
+    if (isGameStarted) {
+      sessionStorage.setItem("boardData", JSON.stringify(board));
+      highlightPlayedMove(playedMove);
+    }
+  }, [board, isGameStarted, playedMove]);
+
+  useEffect(() => {
+    if (isGameStarted)
+      sessionStorage.setItem(
+        "enPassantPosition",
+        JSON.stringify(enPassantPosition)
       );
-      let updatedBoard = boardCopy.reverse().map((row) => row.reverse());
+  }, [isGameStarted, enPassantPosition]);
 
-      socket.emit("move", {
-        room: gameInfo.room,
-        updatedBoard,
-        enPassantPos,
-        prevPlayedMove,
-      });
-    },
-    [gameInfo.room, toggleIsMyTurn]
-  );
+  useEffect(() => {
+    if (typeof flip === "boolean") {
+      flipBoard();
+      setNumbers((numbers) => [...numbers].reverse());
+      setLetters((letters) => [...letters].reverse());
+      removeHighlightedMove(playedMove);
+    }
+  }, [flip, setNumbers, setLetters]);
 
-  const [openPawnPromotion, setOpenPawnPromotion] = useState(false);
-  const [posPawnPromotion, setPosPawnPromotion] = useState<PosPawnPromotion>({
-    x: 0,
-    y: 0,
-    width: 0,
-    height: 0,
-    fieldPos: "00",
-    direction: "column",
-  });
-
-  const handleClosePawnPromotion = () => {
-    setOpenPawnPromotion(false);
-  };
-  const handleOpenPawnPromotion = (pos: PosPawnPromotion) => {
-    setOpenPawnPromotion(true);
-    setPosPawnPromotion(pos);
-  };
-
-  const handlePawnPromotion = (fieldPos: string, title: FigureTitle) => {
-    const { newBoard, checkmate } = updateBoardOnPawnPromotion(
-      board,
-      fieldPos,
-      title,
-      gameInfo.player.side
-    );
-
-    if (checkmate) setIsGameOver(gameInfo.player.side);
-
-    setBoard(newBoard);
-  };
+  /////////////////////////////////////////////////////////////////////////
 
   return size ? (
-    <div id="board" className="board" style={{ width: size }}>
-      <div id="numbers" className="numbers">
+    <div id="board" className="board" style={inlineStyles}>
+      <div id="numbers" className="board-numbers">
         {numbers.map((number) => (
           <span key={number} className="number">
             {number}
@@ -139,7 +233,11 @@ const Board = () => {
         ))}
       </div>
 
-      <Paper className={`fields ${!isGameStarted || (isGameOver && "")}`}>
+      <Paper
+        className={`board-fields ${
+          (!isGameStarted || isGameOver || gameInfo.isSpectator) && "disabled"
+        }`}
+      >
         {board.map((row, i) => {
           return (
             <React.Fragment key={i}>
@@ -148,14 +246,12 @@ const Board = () => {
                   <Field
                     key={`${i}${j}`}
                     {...field}
-                    sendPlayedMoves={sendPlayedMoves}
+                    sendPlayedMove={sendPlayedMove}
                     position={`${i}${j}`}
                     board={board}
-                    handleSetBoard={handleSetBoard}
-                    isMyTurn={isMyTurn}
-                    mySide={gameInfo.player?.side}
+                    sideOnMove={sideOnMove}
+                    playerSide={gameInfo.player.side}
                     enPassantPosition={enPassantPosition}
-                    handleOpenPawnPromotion={handleOpenPawnPromotion}
                   />
                 );
               })}
@@ -164,7 +260,7 @@ const Board = () => {
         })}
       </Paper>
 
-      <div className="letters" style={{ width: size }}>
+      <div className="board-letters">
         {letters.map((letter) => (
           <span key={letter} className="letter">
             {letter}
@@ -172,13 +268,7 @@ const Board = () => {
         ))}
       </div>
 
-      <PawnPromotion
-        open={openPawnPromotion}
-        handleClose={handleClosePawnPromotion}
-        side={gameInfo.player.side}
-        position={posPawnPromotion}
-        handlePawnPromotion={handlePawnPromotion}
-      />
+      <PawnPromotion sendPlayedMove={sendPlayedMove} />
     </div>
   ) : null;
 };

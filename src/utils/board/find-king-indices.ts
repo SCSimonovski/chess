@@ -1,4 +1,4 @@
-import { ChessField } from "../../fixtures/chess-board";
+import { ChessField } from "../../types/types";
 
 export const findKingIndices = (
   board: Array<Array<ChessField>>,

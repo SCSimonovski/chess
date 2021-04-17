@@ -9,10 +9,17 @@ import CloseIcon from "@material-ui/icons/Close";
 
 export const useStyles = makeStyles((theme) => ({
   avatar: {
+    fontSize: 34,
     backgroundColor: theme.palette.primary.main,
+
     width: theme.spacing(6),
     height: theme.spacing(6),
-    fontSize: theme.typography.modalIcon,
+
+    [theme.breakpoints.down("sm")]: {
+      width: theme.spacing(4),
+      height: theme.spacing(4),
+      fontSize: 24,
+    },
   },
 
   title: {
@@ -23,6 +30,14 @@ export const useStyles = makeStyles((theme) => ({
   message: {
     textAlign: "center",
     padding: theme.spacing(1, 4),
+  },
+
+  declineBtn: {
+    backgroundColor: theme.palette.error.main,
+
+    "&:hover": {
+      backgroundColor: theme.palette.error.dark,
+    },
   },
 }));
 

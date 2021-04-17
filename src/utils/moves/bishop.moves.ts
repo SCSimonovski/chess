@@ -1,8 +1,7 @@
-import { ChessField } from "../../fixtures/chess-board";
+import { ChessField } from "../../types/types";
 
 ////////////////////////////////////////////////////////////////////////
 // BISHOP MOVES /////////////////////////////////////////////////////////
-
 export const bishopMoves = (
   board: Array<Array<ChessField>>,
   row: number,

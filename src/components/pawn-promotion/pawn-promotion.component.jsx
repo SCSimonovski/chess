@@ -1,9 +1,11 @@
+import { useState, useEffect, useContext } from "react";
+
 import Dialog from "@material-ui/core/Dialog";
 import Grid from "@material-ui/core/Grid";
 import IconButton from "@material-ui/core/IconButton";
 import ClearIcon from "@material-ui/icons/Clear";
 
-import { GiChessKing } from "react-icons/gi";
+import { GameContext } from "../../context/game.context";
 
 import rookwhite from "../../figures/rook-white.svg";
 import rookblack from "../../figures/rook-black.svg";
@@ -16,25 +18,48 @@ import queenblack from "../../figures/queen-black.svg";
 
 import { useStyles } from "./modal-customized.styles";
 import { Divider } from "@material-ui/core";
+import { updateBoardOnPawnPromotion } from "../../utils/board/update-board";
 
-export default function Modal({
-  open,
-  handleClose,
-  side,
-  position,
-  handlePawnPromotion,
-}) {
-  const classes = useStyles({ position });
+export default function Modal({ sendPlayedMove }) {
+  const { pawnPromotionData, setIsGameOver, gameInfo } = useContext(
+    GameContext
+  );
+  const classes = useStyles({ position: pawnPromotionData });
+
+  const [open, setOpen] = useState(false);
 
   const handleClick = (e) => {
-    const name = e.currentTarget.firstChild.name;
-    handlePawnPromotion(position.fieldPos, name);
-    handleClose();
+    const title = e.currentTarget.firstChild.name;
+
+    const { newBoard, isCheckmate, isCheck } = updateBoardOnPawnPromotion(
+      pawnPromotionData.board,
+      pawnPromotionData.fieldPos,
+      title,
+      gameInfo.player.side
+    );
+
+    if (isCheckmate) setIsGameOver(`${gameInfo.player.side} Won by checkmate`);
+
+    const playedMove = {
+      ...pawnPromotionData.playedMove,
+      figureTitle: title,
+      isCheck,
+      isCastling: false,
+    };
+    sendPlayedMove(newBoard, "", playedMove);
+
+    setOpen(false);
   };
+
+  useEffect(() => {
+    if (pawnPromotionData) {
+      setOpen(true);
+    }
+  }, [pawnPromotionData]);
 
   return (
     <Dialog
-      onClose={handleClose}
+      onClose={() => setOpen(false)}
       aria-labelledby="pick-figure"
       open={open}
       classes={{
@@ -43,13 +68,13 @@ export default function Modal({
     >
       <Grid
         container
-        direction={position.direction}
+        direction={pawnPromotionData?.direction || "column"}
         className={classes.figuresContainer}
       >
         <Grid onClick={handleClick} item className={classes.gridFigure}>
           <img
             name="queen"
-            src={side === "white" ? queenwhite : queenblack}
+            src={gameInfo.player.side === "white" ? queenwhite : queenblack}
             className={classes.img}
             alt="Queen figure"
           />
@@ -57,7 +82,7 @@ export default function Modal({
         <Grid onClick={handleClick} item className={classes.gridFigure}>
           <img
             name="rook"
-            src={side === "white" ? rookwhite : rookblack}
+            src={gameInfo.player.side === "white" ? rookwhite : rookblack}
             className={classes.img}
             alt="Rook figure"
           />
@@ -65,7 +90,7 @@ export default function Modal({
         <Grid onClick={handleClick} item className={classes.gridFigure}>
           <img
             name="bishop"
-            src={side === "white" ? bishopwhite : bishopblack}
+            src={gameInfo.player.side === "white" ? bishopwhite : bishopblack}
             className={classes.img}
             alt="Bishop figure"
           />
@@ -73,7 +98,7 @@ export default function Modal({
         <Grid onClick={handleClick} item className={classes.gridFigure}>
           <img
             name="knight"
-            src={side === "white" ? knightwhite : knightblack}
+            src={gameInfo.player.side === "white" ? knightwhite : knightblack}
             className={classes.img}
             alt="Knight figure"
           />
@@ -82,7 +107,7 @@ export default function Modal({
         <Divider />
 
         <Grid container justify="center" item className={classes.button}>
-          <IconButton aria-label="clear" onClick={handleClose}>
+          <IconButton aria-label="clear" onClick={() => setOpen(false)}>
             <ClearIcon />
           </IconButton>
         </Grid>

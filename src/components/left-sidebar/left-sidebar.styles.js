@@ -5,7 +5,8 @@ export const useStyles = makeStyles((theme) => ({
     height: "100%",
   },
 
-  paper: {
+  paperGrid: {
+    height: "100%",
     backgroundColor: theme.palette.secondary.main,
 
     padding: theme.spacing(2),
@@ -16,7 +17,7 @@ export const useStyles = makeStyles((theme) => ({
 
     width: theme.spacing(14),
     height: theme.spacing(14),
-    fontSize: theme.typography.logoIcon,
+    fontSize: theme.icons.logoIcon,
   },
 
   logoTitle: {
@@ -48,9 +49,5 @@ export const useStyles = makeStyles((theme) => ({
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
-  },
-
-  paperGrid: {
-    height: "100%",
   },
 }));

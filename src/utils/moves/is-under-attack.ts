@@ -1,4 +1,4 @@
-import { ChessField, FigureTitle } from "../../fixtures/chess-board";
+import { ChessField, FigureTitle } from "../../types/types";
 import { positionToIndices } from "../board/position-to-indices";
 
 export const isUnderAttack = (

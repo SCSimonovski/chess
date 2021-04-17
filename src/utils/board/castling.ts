@@ -1,7 +1,6 @@
-import { ChessField } from "../../fixtures/chess-board";
 import { updateBoard } from "./update-board";
 
-import { Castling, EnPassant } from "../../utils/types";
+import { Castling, EnPassant, ChessField } from "../../types/types";
 
 // Castling //////////////////////////////////////////////////////
 export const castling = (

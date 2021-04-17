@@ -1,5 +1,7 @@
 import { createMuiTheme } from "@material-ui/core/styles";
 
+const t = createMuiTheme();
+
 export const theme = createMuiTheme({
   palette: {
     primary: {
@@ -16,8 +18,26 @@ export const theme = createMuiTheme({
     },
   },
 
-  typography: {
+  icons: {
+    listItemIcon: 26,
+    mobileIcon: 24,
     modalIcon: 34,
     logoIcon: 76,
+  },
+
+  typography: {
+    body1: {
+      fontSize: "1rem",
+
+      [t.breakpoints.down("sm")]: {
+        fontSize: "1rem",
+      },
+    },
+
+    h4: {
+      [t.breakpoints.down("sm")]: {
+        fontSize: "1.4rem",
+      },
+    },
   },
 });

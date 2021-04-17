@@ -1,9 +1,10 @@
-import { ChessField, FigureTitle } from "../../fixtures/chess-board";
+import { ChessField, FigureTitle } from "../../types/types";
 import { findKingIndices } from "../board/find-king-indices";
 
 export const isCheck = (
   board: Array<Array<ChessField>>,
-  enemySide: string
+  enemySide: string,
+  pawnsDirection: number = 1
 ): Array<string> => {
   const arr: string[] = [];
 
@@ -19,11 +20,10 @@ export const isCheck = (
       const { side, title } = board[r][c].figure!;
       if (side === enemySide && enemies.includes(title)) {
         arr.push(`${r}${c}`);
-      } else if (title !== "king") {
-        return -1;
       }
+      return true;
     }
-    return 0;
+    return false;
   };
 
   ////////////////////////////////////////////////////////
@@ -164,14 +164,14 @@ export const isCheck = (
   ////////////////////////////////////////////////////////////////
   // CHECK FROM PAWN ////////////////////////////////////////////
 
-  const checkFromPawn = (r: number, c: number, side: "white" | "black") => {
+  const checkFromPawn = (r: number, c: number) => {
     if (
       r >= 0 &&
       r <= 7 &&
       c >= 0 &&
       c <= 7 &&
       board[r][c].figure?.title === "pawn" &&
-      board[r][c].figure?.side === side
+      board[r][c].figure?.side === enemySide
     ) {
       arr.push(`${r}${c}`);
     }
@@ -179,23 +179,13 @@ export const isCheck = (
 
   /////////////////////////////////////////////////////////////////
 
-  if (enemySide === "white") {
-    r = row + 1;
-    c = column + 1;
+  r = row + pawnsDirection;
+  c = column + 1;
 
-    checkFromPawn(r, c, "white");
+  checkFromPawn(r, c);
 
-    c = column - 1;
-    checkFromPawn(r, c, "white");
-  } else {
-    r = row - 1;
-    c = column - 1;
-
-    checkFromPawn(r, c, "black");
-
-    c = column + 1;
-    checkFromPawn(r, c, "black");
-  }
+  c = column - 1;
+  checkFromPawn(r, c);
 
   ///////////////////////////////////////////////////////////////////
 

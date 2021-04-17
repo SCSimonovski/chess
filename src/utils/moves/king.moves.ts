@@ -1,5 +1,6 @@
-import { ChessField } from "../../fixtures/chess-board";
-import { AvailableMoves, Castling } from "../../utils/types";
+import { ChessField } from "../../types/types";
+
+import { AvailableMoves, Castling } from "../../types/types";
 import { isUnderAttack } from "./is-under-attack";
 
 export const kingMoves = (

@@ -3,22 +3,19 @@ import { GameContext } from "../../context/game.context";
 
 import Figure from "../figure/figure.component";
 
-import { ChessBoard, ChessFigure } from "../../fixtures/chess-board";
-
 import { availableMoves } from "../../utils/moves/moves";
 import { moveFigureAt } from "../../utils/move-figure-at";
 
-import { AvailableMoves, PosPawnPromotion } from "../../utils/types";
+import { AvailableMoves, ChessBoard, ChessFigure } from "../../types/types";
 import { positionToIndices } from "../../utils/board/position-to-indices";
 
 import "./field.styles.scss";
 import { boardFinalVersion } from "../../utils/board/update-board";
 import {
-  highlightMoves,
-  removeHighlightedMoves,
-  highlightPlayedMove,
-  removePrevMoveHighlight,
+  markAvailableMoves,
+  removeMarkedMoves,
 } from "../../utils/board/highlight-moves";
+import { detectMob } from "../../utils/detect-mobile-browser";
 
 let moves: AvailableMoves = {
   arr: [],
@@ -28,90 +25,108 @@ let moves: AvailableMoves = {
 
 type Props = {
   position: string;
+  title: string;
   figure: ChessFigure | null;
   color: "white" | "black";
-  sendPlayedMoves: any;
+  sendPlayedMove: any;
   board: ChessBoard;
-  handleSetBoard: any;
-  isMyTurn: boolean;
-  mySide: string;
-  enPassantPosition: number;
-  handleOpenPawnPromotion: (pos: PosPawnPromotion) => void;
+  sideOnMove: string;
+  playerSide: string;
+  enPassantPosition: string;
 };
 
-let prevPlayedMove: {
-  from: string;
-  to: string;
-} | null = null;
-
-let highlightedMoves: {
+let fieldsToMark: {
   selectedEl: any;
   moves: Array<string>;
 } | null = null;
 
 let prevClickedFieldEl: any;
 
+let playedMove: {
+  from: string;
+  to: string;
+  figureTitle: string;
+  takenFigure: string;
+  isCheck: boolean;
+  isCastling: boolean;
+} | null = null;
+
+const isMobile = detectMob();
+
 const Field = ({
+  title,
   figure,
   color,
   position,
-  sendPlayedMoves,
+  sendPlayedMove,
   board,
-  handleSetBoard,
-  isMyTurn,
-  mySide,
+  sideOnMove,
+  playerSide,
   enPassantPosition,
-  handleOpenPawnPromotion,
 }: Props) => {
-  const { setIsGameOver } = useContext(GameContext);
+  const { setIsGameOver, playerBoardSide, setPawnPromotionData } = useContext(
+    GameContext
+  );
+
   const handleOnClick = (e: any) => {
     let elemBelow = e.currentTarget;
-
-    if (prevClickedFieldEl?.firstChild?.firstChild && (isMyTurn || true)) {
+    if (
+      prevClickedFieldEl?.firstChild?.firstChild &&
+      sideOnMove === playerSide
+    ) {
       let [row, column] = positionToIndices(prevClickedFieldEl.id);
       const figure = board[row][column].figure!;
-
       /////////////////////////////////////////////////////
       [row, column] = positionToIndices(elemBelow.id);
       const figureBelow = board[row][column].figure;
-      if (figureBelow?.side === mySide) {
+      if (figureBelow?.side === playerSide) {
         prevClickedFieldEl = elemBelow;
         return;
       }
       /////////////////////////////////////////////////////
-
-      if (figure.side === mySide) {
+      if (figure.side === playerSide) {
         moves = availableMoves(
           figure,
           prevClickedFieldEl.id,
           board,
+          playerBoardSide,
           enPassantPosition
         );
         let move = moves.arr.find((move) => move === elemBelow.id);
-
         if (move) {
-          const { newBoard, enPassantPos, checkmate } = boardFinalVersion(
+          const {
+            pawnPromotion,
+            newBoard,
+            enPassantPos,
+            isCheckmate,
+            isCheck,
+            isCastling,
+          } = boardFinalVersion(
             board,
             figure,
             moves,
             move,
             prevClickedFieldEl,
-            mySide,
-            handleOpenPawnPromotion,
-            elemBelow
+            playerSide,
+            setPawnPromotionData,
+            elemBelow,
+            playerBoardSide
           );
+          if (!pawnPromotion) {
+            if (isCheckmate) setIsGameOver(`${playerSide} Won by checkmate`);
+            playedMove = {
+              from: prevClickedFieldEl.title,
+              to: elemBelow.title,
+              figureTitle: figure.title,
+              takenFigure: elemBelow.firstChild.id,
+              isCheck,
+              isCastling,
+            };
+            sendPlayedMove(newBoard, enPassantPos, playedMove);
+          }
 
-          if (checkmate) setIsGameOver(mySide);
-
-          prevPlayedMove = {
-            from: prevClickedFieldEl.id,
-            to: elemBelow.id,
-          };
-
-          highlightPlayedMove(prevPlayedMove);
-
-          handleSetBoard(newBoard);
-          sendPlayedMoves(newBoard, enPassantPos);
+          if (fieldsToMark) removeMarkedMoves(fieldsToMark);
+          fieldsToMark = null;
         }
         prevClickedFieldEl = null;
       }
@@ -120,9 +135,8 @@ const Field = ({
     }
   };
 
-  const onMouseDown = (e: any) => {
-    if (highlightedMoves) removeHighlightedMoves(highlightedMoves);
-    if (prevPlayedMove) removePrevMoveHighlight(prevPlayedMove);
+  const handleStart = (e: any) => {
+    if (fieldsToMark) removeMarkedMoves(fieldsToMark);
 
     if (e.currentTarget.firstChild.firstChild) {
       let elemBelow = e.currentTarget;
@@ -141,31 +155,48 @@ const Field = ({
 
       const [row, column] = positionToIndices(position);
       const figure = board[row][column].figure!;
-      if ((isMyTurn || true) && figure.side === mySide) {
+      if (sideOnMove === playerSide && figure.side === playerSide) {
         prevClickedFieldEl = selectedFieldEl;
-        moves = availableMoves(figure, position, board, enPassantPosition);
+        moves = availableMoves(
+          figure,
+          position,
+          board,
+          playerBoardSide,
+          enPassantPosition
+        );
       } else {
         moves.arr = [];
       }
 
       /////////////////////////////////////////////////////////////////
-      highlightedMoves = {
+      fieldsToMark = {
         selectedEl: selectedFieldEl,
         moves: moves.arr,
       };
-      highlightMoves(highlightedMoves);
+      markAvailableMoves(fieldsToMark);
       //////////////////////////////////////////////////////////////
 
-      const { pageX, pageY } = e;
-      moveFigureAt(pageX, pageY, figureEl, elemBelow);
+      let x, y: number;
+      if (!isMobile) {
+        x = e.pageX;
+        y = e.pageY;
+        moveFigureAt(x, y, figureEl, boardEl);
+      }
 
-      //  On Mouse Move /////////////////////////////////////////////
+      //  On Move /////////////////////////////////////////////
       let prevElemBelow = e.currentTarget;
       prevElemBelow.classList.add("field-border");
-      const onMouseMove = (e: any) => {
-        const { pageX, pageY } = e;
-        moveFigureAt(pageX, pageY, figureEl, boardEl);
-        elemBelow = document.elementFromPoint(pageX, pageY);
+      const onMove = (e: any) => {
+        if (isMobile) {
+          x = e.touches[0].clientX;
+          y = e.touches[0].clientY - 50;
+        } else {
+          x = e.pageX;
+          y = e.pageY;
+        }
+
+        moveFigureAt(x, y, figureEl, boardEl);
+        elemBelow = document.elementFromPoint(x, y);
         if (elemBelow?.title === "empty") elemBelow = elemBelow.parentElement;
 
         if (elemBelow?.id?.length === 2 && elemBelow !== prevElemBelow) {
@@ -174,12 +205,15 @@ const Field = ({
           prevElemBelow = elemBelow;
         }
       };
-      document.addEventListener("mousemove", onMouseMove);
+      document.addEventListener(isMobile ? "touchmove" : "mousemove", onMove);
 
       ///////////////////////////////////////////////////////////////
-      // On Mouse Up ////////////////////////////////////////////////
-      const onMouseUp = () => {
-        document.removeEventListener("mousemove", onMouseMove);
+      // On End ////////////////////////////////////////////////
+      const onEnd = () => {
+        document.removeEventListener(
+          isMobile ? "touchmove" : "mousemove",
+          onMove
+        );
 
         figureImgEl.style.width = "90%";
         figureImgEl.style.height = "90%";
@@ -189,37 +223,48 @@ const Field = ({
         move = moves.arr.find((move) => move === elemBelow?.id);
         if (move) {
           prevClickedFieldEl = null;
-          const { newBoard, enPassantPos, checkmate } = boardFinalVersion(
+          const {
+            pawnPromotion,
+            newBoard,
+            enPassantPos,
+            isCheckmate,
+            isCheck,
+            isCastling,
+          } = boardFinalVersion(
             board,
             figure,
             moves,
             move,
             selectedFieldEl,
-            mySide,
-            handleOpenPawnPromotion,
-            elemBelow
+            playerSide,
+            setPawnPromotionData,
+            elemBelow,
+            playerBoardSide
           );
 
-          if (checkmate) setIsGameOver(mySide);
+          if (fieldsToMark) removeMarkedMoves(fieldsToMark);
+          fieldsToMark = null;
 
-          prevPlayedMove = {
-            from: selectedFieldEl.id,
-            to: elemBelow.id,
-          };
+          if (!pawnPromotion) {
+            if (isCheckmate) setIsGameOver(playerSide);
 
-          if (highlightedMoves) removeHighlightedMoves(highlightedMoves);
-          highlightedMoves = null;
+            playedMove = {
+              from: selectedFieldEl.title,
+              to: elemBelow.title,
+              figureTitle: figure.title,
+              takenFigure: elemBelow.firstChild.id,
+              isCheck,
+              isCastling,
+            };
 
-          highlightPlayedMove(prevPlayedMove);
-
-          handleSetBoard(newBoard);
-          sendPlayedMoves(newBoard, enPassantPos, prevPlayedMove);
+            sendPlayedMove(newBoard, enPassantPos, playedMove);
+          }
         }
 
         prevElemBelow.classList.remove("field-border");
-        document.removeEventListener("mouseup", onMouseUp);
+        document.removeEventListener(isMobile ? "touchend" : "mouseup", onEnd);
       };
-      document.addEventListener("mouseup", onMouseUp);
+      document.addEventListener(isMobile ? "touchend" : "mouseup", onEnd);
     }
   };
 
@@ -228,7 +273,9 @@ const Field = ({
       color={color}
       className={`field ${color}`}
       id={position}
-      onMouseDown={onMouseDown}
+      title={title}
+      onMouseDown={handleStart}
+      onTouchStart={handleStart}
       onClick={handleOnClick}
       draggable="false"
     >

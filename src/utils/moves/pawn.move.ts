@@ -1,5 +1,4 @@
-import { ChessField } from "../../fixtures/chess-board";
-import { AvailableMoves, EnPassant } from "../types";
+import { AvailableMoves, ChessField, EnPassant } from "../../types/types";
 
 ////////////////////////////////////////////////////////////////////////
 // WHITE pawn MOVES ////////////////////////////////////////////////////
@@ -10,7 +9,7 @@ export const pawnMoves = (
   column: number,
   n: number,
   enemySide: "white" | "black",
-  pawnColumn: number
+  enPassantPos: string
 ): AvailableMoves => {
   const arr: string[] = [];
 
@@ -43,26 +42,31 @@ export const pawnMoves = (
   }
 
   let enPassant: EnPassant | undefined = undefined;
-  let pawnRow = enemySide === "white" ? 4 : 3;
+  if (!!enPassantPos) {
+    let pawnColumn = parseInt(
+      document.querySelector(`[title=${enPassantPos}]`)!.id.split("")[1]
+    );
+    let pawnRow = n === 1 ? 4 : 3;
 
-  if (pawnColumn !== -1 && row === pawnRow) {
-    let r = row + n;
-    let c = column + 1;
-    if (pawnColumn === c) {
-      arr.push(`${r}${c}`);
-      enPassant = {
-        pawnToMovePos: `${r}${c}`,
-        pawnToTakePos: `${row}${c}`,
-      };
-    }
+    if (pawnColumn !== -1 && row === pawnRow) {
+      let r = row + n;
+      let c = column + 1;
+      if (pawnColumn === c) {
+        arr.push(`${r}${c}`);
+        enPassant = {
+          pawnToMovePos: `${r}${c}`,
+          pawnToTakePos: `${row}${c}`,
+        };
+      }
 
-    c = column - 1;
-    if (pawnColumn === c) {
-      arr.push(`${r}${c}`);
-      enPassant = {
-        pawnToMovePos: `${r}${c}`,
-        pawnToTakePos: `${row}${c}`,
-      };
+      c = column - 1;
+      if (pawnColumn === c) {
+        arr.push(`${r}${c}`);
+        enPassant = {
+          pawnToMovePos: `${r}${c}`,
+          pawnToTakePos: `${row}${c}`,
+        };
+      }
     }
   }
 

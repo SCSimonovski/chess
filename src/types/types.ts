@@ -1,4 +1,24 @@
-import { ChessFigure } from "../fixtures/chess-board";
+export type FigureTitle =
+  | "pawn"
+  | "rook"
+  | "knight"
+  | "bishop"
+  | "king"
+  | "queen";
+
+export type ChessFigure = {
+  title: FigureTitle;
+  side: "white" | "black";
+  firstMove: boolean;
+};
+
+export type ChessField = {
+  title: string;
+  figure: ChessFigure | null;
+  color: "white" | "black";
+};
+
+export type ChessBoard = Array<Array<ChessField>>;
 
 export type AvailableMoves = {
   arr: Array<string>;
@@ -26,8 +46,9 @@ export type Options = {
 
 export type GameInfo = {
   room: string;
-
   code: string;
+  time: string;
+  isSpectator: boolean;
 
   player: {
     username: string;
@@ -40,62 +61,10 @@ export type GameInfo = {
   };
 };
 
-export const GameInfoDefault = {
-  room: "",
-  code: "",
-  player: {
-    username: "",
-    side: "",
-  },
-
-  opponent: {
-    username: "",
-    side: "",
-  },
-};
-
-export const DefaultActiveGames = [
-  {
-    room: "IAgainstI",
-    isPlaying: false,
-  },
-  {
-    room: "UndeAverage",
-    isPlaying: true,
-  },
-  {
-    room: "GlobalDomination",
-    isPlaying: true,
-  },
-  {
-    room: "BobyFisher",
-    isPlaying: false,
-  },
-];
-
-export type MovesPlayed = {
+export type PlayedMoves = {
   white: string;
   black: string;
 };
-
-export const DefaultMovesPlayed = [
-  {
-    white: "e4",
-    black: "b3",
-  },
-  {
-    white: "Nc5",
-    black: "Qe7",
-  },
-  {
-    white: "O-O-O",
-    black: "c5",
-  },
-  {
-    white: "bxc5",
-    black: "Rxf8+",
-  },
-];
 
 export type PosPawnPromotion = {
   x: number;
@@ -104,4 +73,10 @@ export type PosPawnPromotion = {
   height: number;
   fieldPos: string;
   direction: string;
+};
+
+export type Time = {
+  timeInSeconds: number;
+  minutes: any;
+  seconds: any;
 };

@@ -14,18 +14,25 @@
     background-color: $field-dark;
   }
 
-  &.selected-white {
+  &.select-white {
     background-color: $selected-light;
   }
 
-  &.selected-black {
+  &.select-black {
     background-color: $selected-dark;
+  }
+
+  &.highlight-black {
+    background-color: $selected-dark;
+  }
+
+  &.highlight-white {
+    background-color: $selected-light;
   }
 
   &.field-border {
     border: 4px solid rgb(228, 228, 228);
     border-radius: 5px;
-    // border: 2px solid $field-border;
   }
 }
 
@@ -36,22 +43,9 @@
   background-color: #000;
   opacity: 0.1;
   border-radius: 100%;
-  //   clip-path: polygon(
-  //     30% 0%,
-  //     70% 0%,
-  //     100% 30%,
-  //     100% 70%,
-  //     70% 100%,
-  //     30% 100%,
-  //     0% 70%,
-  //     0% 30%
-  //   );
 }
 
 .available-figure {
-  //   width: 80%;
-  //   height: 80%;
-
   border: 5px solid rgba(0, 0, 0, 0.1);
   border-radius: 100%;
 }

@@ -1,10 +1,6 @@
-import {
-  ChessBoard,
-  ChessField,
-  ChessFigure,
-} from "../../fixtures/chess-board";
+import { ChessBoard, ChessField, ChessFigure } from "../../types/types";
 
-import { AvailableMoves } from "../../utils/types";
+import { AvailableMoves } from "../../types/types";
 
 import { pawnMoves } from "./pawn.move";
 import { rookMoves } from "./rook.moves";
@@ -21,7 +17,8 @@ export const availableMoves = (
   figure: ChessFigure,
   position: string,
   board: Array<Array<ChessField>>,
-  pawnColumn: number
+  playerBoardSide: string,
+  enPassantPosition: string
 ): AvailableMoves => {
   let [row, column] = positionToIndices(position);
 
@@ -33,13 +30,28 @@ export const availableMoves = (
 
   let { title, side } = figure;
   const enemySide = side === "white" ? "black" : "white";
+  const pawnsDirection = playerBoardSide === "up" ? 1 : -1;
 
   switch (title) {
     case "pawn":
       if (side === "black") {
-        moves = pawnMoves(board, row, column, -1, "white", pawnColumn);
+        moves = pawnMoves(
+          board,
+          row,
+          column,
+          pawnsDirection,
+          "white",
+          enPassantPosition
+        );
       } else {
-        moves = pawnMoves(board, row, column, -1, "black", pawnColumn);
+        moves = pawnMoves(
+          board,
+          row,
+          column,
+          pawnsDirection,
+          "black",
+          enPassantPosition
+        );
       }
       break;
 
@@ -66,7 +78,7 @@ export const availableMoves = (
   let newBoard: ChessBoard;
   moves.arr = moves.arr.filter((move) => {
     newBoard = updateBoard(board, position, move, figure);
-    if (isCheck(newBoard, enemySide).length === 0) {
+    if (isCheck(newBoard, enemySide, pawnsDirection).length === 0) {
       return true;
     }
     return false;

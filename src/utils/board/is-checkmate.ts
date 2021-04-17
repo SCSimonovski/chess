@@ -1,8 +1,7 @@
-import { ChessField } from "../../fixtures/chess-board";
+import { ChessField } from "../../types/types";
 import { kingMoves } from "../moves/king.moves";
 import { findKingIndices } from "./find-king-indices";
-
-import { AvailableMoves } from "../types";
+import { AvailableMoves } from "../../types/types";
 import { isUnderAttack } from "../moves/is-under-attack";
 import { positionToIndices } from "./position-to-indices";
 import { protectKing } from "../moves/protect-king";
@@ -14,7 +13,7 @@ export const isCheckmate = (
 ): boolean => {
   let moves: AvailableMoves;
   let isProtected = false;
-  let checkmate = true;
+  let isCheckmate = true;
   let alliesSide: "black" | "white" = enemySide === "white" ? "black" : "white";
 
   let [row, column] = findKingIndices(board, alliesSide);
@@ -33,8 +32,10 @@ export const isCheckmate = (
   }
 
   // return false if some of the available moves for the king is not under attack //
-  checkmate = !moves.arr.some((move) => !isUnderAttack(board, enemySide, move));
-  if (!checkmate) {
+  isCheckmate = !moves.arr.some(
+    (move) => !isUnderAttack(board, enemySide, move)
+  );
+  if (!isCheckmate) {
     return false;
   }
 

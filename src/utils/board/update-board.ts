@@ -1,14 +1,15 @@
+import { isCheck } from "../moves/is-check";
+import { castling, enPassant } from "./castling";
+import { isCheckmate } from "./is-checkmate";
+import { positionToIndices } from "./position-to-indices";
+
 import {
+  AvailableMoves,
   ChessBoard,
   ChessField,
   ChessFigure,
   FigureTitle,
-} from "../../fixtures/chess-board";
-import { isCheck } from "../moves/is-check";
-import { AvailableMoves, PosPawnPromotion } from "../types";
-import { castling, enPassant } from "./castling";
-import { isCheckmate } from "./is-checkmate";
-import { positionToIndices } from "./position-to-indices";
+} from "../../types/types";
 
 export const updateBoard = (
   board: Array<Array<ChessField>>,
@@ -38,14 +39,17 @@ export const boardFinalVersion = (
   moves: AvailableMoves,
   move: string,
   prevElement: any,
-  mySide: string,
-  handleOpenPawnPromotion: (pos: PosPawnPromotion) => void,
-  elemBelow: any
+  playerSide: string,
+  setPawnPromotionData: (data: any) => void,
+  elemBelow: any,
+  playerBoardSide: string
 ) => {
   let newBoard = updateBoard(board, prevElement.id, move, figure);
+  let isCastling = false;
 
   // Updating the board if the move is Castling or EnPassant //
   if (moves.castling?.position === move) {
+    isCastling = true;
     newBoard = castling(newBoard, moves.castling!);
   }
   if (moves.enPassant?.pawnToMovePos === move) {
@@ -54,47 +58,71 @@ export const boardFinalVersion = (
   //////////////////////////////////////////////////////////////
 
   // Setting position for EnPassant move //////////////////////
-  let enPassantPos = -1;
+  let enPassantPos = "";
 
   const [fromRow] = positionToIndices(prevElement.id);
-  const [toRow, toColumn] = positionToIndices(move);
+  const [toRow] = positionToIndices(move);
   if (
     figure.title === "pawn" &&
     figure.firstMove &&
     Math.abs(fromRow - toRow) === 2
   ) {
-    enPassantPos = toColumn;
+    enPassantPos = elemBelow.title;
   }
+
   //////////////////////////////////////////////////////
   // Pawn Promotion ///////////////////////////////////
   if (figure.title === "pawn" && (toRow === 7 || toRow === 0)) {
     let { x, y, width, height } = elemBelow.getBoundingClientRect();
-    handleOpenPawnPromotion({
+
+    setPawnPromotionData({
       x,
       y: !toRow ? y : y - 3 * height - 48,
       width,
       height,
       fieldPos: elemBelow.id,
       direction: !toRow ? "column" : "column-reverse",
+      board: newBoard,
+      playedMove: {
+        from: prevElement.title,
+        to: elemBelow.title,
+        takenFigure: elemBelow.firstChild.id,
+      },
     });
+    return {
+      pawnPromotion: true,
+      newBoard: null,
+      enPassantPos,
+      isCheckmate: false,
+      isCheck: false,
+      isCastling: false,
+    };
   }
 
   // Checking for checkmate ////////////////////////////
-  let checkArr = isCheck(newBoard, mySide);
+  const pawnsDirection = playerBoardSide === "down" ? 1 : -1;
+  let checkArr = isCheck(newBoard, playerSide, pawnsDirection);
   let checkmate = false;
   if (checkArr.length !== 0) {
-    checkmate = isCheckmate(newBoard, mySide, checkArr);
+    checkmate = isCheckmate(newBoard, playerSide, checkArr);
   }
   //////////////////////////////////////////////////////
 
-  return { newBoard, enPassantPos, checkmate };
+  return {
+    pawnPromotion: false,
+    newBoard,
+    enPassantPos,
+    isCheckmate: checkmate,
+    isCheck: !!checkArr.length,
+    isCastling,
+  };
 };
 
 export const updateBoardOnPawnPromotion = (
   board: ChessBoard,
   fieldPos: string,
   title: FigureTitle,
-  mySide: string
+  playerSide: string
 ) => {
   const newBoard = board.map((row, i) => {
     return row.map((column, j) => {
@@ -106,12 +134,12 @@ export const updateBoardOnPawnPromotion = (
   });
 
   // Checking for checkmate ////////////////////////////
-  let checkArr = isCheck(newBoard, mySide);
+  let checkArr = isCheck(newBoard, playerSide);
   let checkmate = false;
   if (checkArr.length !== 0) {
-    checkmate = isCheckmate(newBoard, mySide, checkArr);
+    checkmate = isCheckmate(newBoard, playerSide, checkArr);
   }
   //////////////////////////////////////////////////////
 
-  return { newBoard, checkmate };
+  return { newBoard, isCheckmate: checkmate, isCheck: !!checkArr.length };
 };

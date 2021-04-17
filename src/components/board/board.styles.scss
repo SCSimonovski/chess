@@ -1,58 +1,46 @@
-@import "../../styles/settings.styles.scss";
-
 .board {
   display: grid;
   grid-template-columns: auto 1fr;
   grid-template-rows: 1fr auto;
   height: 100%;
-
-  .fields {
-    height: 100%;
-    width: 100%;
-
-    padding: 3px;
-
-    display: grid;
-    grid-template: repeat(8, 1fr) / repeat(8, 1fr);
-
-    &.disabled {
-      pointer-events: none;
-    }
-  }
-
-  .numbers {
-    // justify-content: flex-start;
-    padding-right: 5px;
-    display: grid;
-
-    color: grey;
-
-    .number {
-      margin: auto;
-    }
-  }
-
-  .letters {
-    // align-content: flex-end;
-    display: grid;
-    grid-auto-flow: column;
-    grid-column: 2/3;
-
-    color: grey;
-
-    grid-template-columns: repeat(1fr);
-
-    .letter {
-      margin: auto;
-    }
-  }
 }
 
-// .noselect {
-//   -webkit-touch-callout: none; /* iOS Safari */
-//   -webkit-user-select: none; /* Safari */
-//   -khtml-user-select: none; /* Konqueror HTML */
-//   -moz-user-select: none; /* Old versions of Firefox */
-//   -ms-user-select: none; /* Internet Explorer/Edge */
-//   user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
-// }
+.board-fields {
+  height: 100%;
+  width: 100%;
+  display: grid;
+  grid-template: repeat(8, 1fr) / repeat(8, 1fr);
+  padding: 3px;
+}
+
+.disabled {
+  pointer-events: none;
+}
+
+.board-numbers {
+  padding-right: 5px;
+  display: grid;
+  color: grey;
+}
+.number {
+  margin: auto;
+}
+
+.board-letters {
+  display: grid;
+  grid-auto-flow: column;
+  grid-column: 2/3;
+  color: grey;
+  grid-template-columns: repeat(1fr);
+}
+.letter {
+  margin: auto;
+}
+
+@media screen and (max-width: 600px) {
+  .board-letters,
+  .board-numbers {
+    font-size: 10px;
+    padding: 0;
+  }
+}
