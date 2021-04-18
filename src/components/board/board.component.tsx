@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  useContext,
-  useCallback,
-  useRef,
-} from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import { socket } from "../../App";
 import { GameContext } from "../../context/game.context";
 
@@ -23,7 +17,7 @@ import {
   highlightPlayedMove,
   removeHighlightedMove,
 } from "../../utils/board/highlight-moves";
-import { ChessBoard } from "../../types/types";
+import { ChessBoard, PlayedMove } from "../../types/types";
 
 import "./board.styles.scss";
 
@@ -35,11 +29,10 @@ const Board = () => {
     sideOnMove,
     playerBoardSide,
     flip,
+    hasSound,
     board: spectatorsBoard,
     handlePlayedMoves,
   } = useContext(GameContext);
-
-  const initialRender = useRef(true);
 
   const [board, setBoard] = useState<ChessBoard>(BOARD_MATRIX);
   const [numbers, setNumbers] = useState<Array<number>>(BOARD_NUMBERS);
@@ -47,8 +40,14 @@ const Board = () => {
 
   const [size, setSize] = useState(1);
   const [inlineStyles, setInlineStyles] = useState<any>();
-  const [playedMove, setPlayedMove] = useState<any>(null);
+  const [playedMove, setPlayedMove] = useState<PlayedMove | null>(null);
   const [enPassantPosition, setEnPassantPosition] = useState<string>("");
+
+  const TFSound = new Audio("./sound-effects/take-figure.mp3");
+  const MFSound = new Audio("./sound-effects/move.mp3");
+  MFSound.volume = 0.2;
+
+  ////////////////////////////////////////////
 
   window.onresize = () => {
     const grid = document.getElementById("boardGrid");
@@ -84,6 +83,7 @@ const Board = () => {
         handlePlayedMoves(opponentsMove);
         setEnPassantPosition(enPassantPos);
         setBoard(updatedBoard);
+        // audio.play();
       });
     }
   }, [
@@ -122,12 +122,20 @@ const Board = () => {
   ]);
 
   const sendPlayedMove = useCallback(
-    (newBoard: ChessBoard, enPassantPos: number, move: any) => {
+    (newBoard: ChessBoard, enPassantPos: number, move: PlayedMove) => {
       removeHighlightedMove(playedMove);
 
       setPlayedMove(move);
       handlePlayedMoves(move);
       setBoard(newBoard);
+
+      if (hasSound) {
+        if (!!move.takenFigure) {
+          TFSound.play();
+        } else {
+          MFSound.play();
+        }
+      }
 
       socket.emit("move", {
         room: gameInfo.room,

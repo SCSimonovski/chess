@@ -18,6 +18,7 @@ import { GiChessKing } from "react-icons/gi";
 
 import { useStyles } from "./chess-room.styles.js";
 import Player from "../../components/player/player.component";
+import SoundIcon from "../../components/sound-icon/sound-icon.component";
 
 const ChessRoom = () => {
   const { gameInfo, playerBoardSide } = useContext(GameContext);
@@ -28,6 +29,7 @@ const ChessRoom = () => {
       <Grid id="chess-room" className={classes.root} container justify="center">
         <Hidden smUp>
           <AppBar position="fixed" color="secondary">
+            <SoundIcon />
             <Grid
               container
               justify="center"

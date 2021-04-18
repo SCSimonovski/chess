@@ -1,10 +1,13 @@
+import { useContext } from "react";
+
 import Avatar from "@material-ui/core/Avatar";
 import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
 import Grid from "@material-ui/core/Grid";
 
-import { GiChessKing } from "react-icons/gi";
+import SoundIcon from "../sound-icon/sound-icon.component";
 
+import { GiChessKing } from "react-icons/gi";
 import { useStyles } from "./left-sidebar.styles";
 
 const LeftSidebar = () => {
@@ -31,6 +34,7 @@ const LeftSidebar = () => {
           <Typography component="h1" variant="h3" className={classes.logoTitle}>
             Chess Master
           </Typography>
+          <SoundIcon />
         </Grid>
       </Grid>
     </Grid>

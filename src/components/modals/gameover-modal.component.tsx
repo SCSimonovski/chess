@@ -21,11 +21,15 @@ import { ButtonGroup } from "@material-ui/core";
 export default function Modal() {
   const classes = useStyles();
 
-  const { isGameOver, setIsGameOver, gameInfo } = useContext(GameContext);
+  const { isGameOver, setIsGameOver, gameInfo, hasSound } = useContext(
+    GameContext
+  );
 
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [btnText, setBtnText] = useState("rematch");
+
+  const modalSound = new Audio("./sound-effects/modal.mp3");
 
   const handleClose = () => {
     setOpen(false);
@@ -44,6 +48,12 @@ export default function Modal() {
       setOpen(true);
     }
   }, [isGameOver]);
+
+  useEffect(() => {
+    if (hasSound) {
+      modalSound.play();
+    }
+  }, [open]);
 
   useEffect(() => {
     socket.on("playRematch", () => {

@@ -6,7 +6,12 @@ import Figure from "../figure/figure.component";
 import { availableMoves } from "../../utils/moves/moves";
 import { moveFigureAt } from "../../utils/move-figure-at";
 
-import { AvailableMoves, ChessBoard, ChessFigure } from "../../types/types";
+import {
+  AvailableMoves,
+  ChessBoard,
+  ChessFigure,
+  PlayedMove,
+} from "../../types/types";
 import { positionToIndices } from "../../utils/board/position-to-indices";
 
 import "./field.styles.scss";
@@ -42,14 +47,7 @@ let fieldsToMark: {
 
 let prevClickedFieldEl: any;
 
-let playedMove: {
-  from: string;
-  to: string;
-  figureTitle: string;
-  takenFigure: string;
-  isCheck: boolean;
-  isCastling: boolean;
-} | null = null;
+let playedMove: PlayedMove | null = null;
 
 const isMobile = detectMob();
 

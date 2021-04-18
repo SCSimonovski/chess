@@ -23,6 +23,8 @@ export type GameContextType = {
   setPlayerBoardSide: any;
   pawnPromotionData: any;
   setPawnPromotionData: (data: any) => void;
+  hasSound: boolean;
+  setHasSound: (sound: any) => void;
 };
 
 const context: GameContextType = {
@@ -44,6 +46,8 @@ const context: GameContextType = {
   setPlayerBoardSide: () => {},
   pawnPromotionData: null,
   setPawnPromotionData: () => {},
+  hasSound: false,
+  setHasSound: (sound: any) => {},
 };
 
 export const GameContext = React.createContext<GameContextType>(context);
@@ -59,6 +63,7 @@ const GameContextProvider: React.FC = ({ children }) => {
   const [board, setBoard] = useState<any>(null);
   const [pawnPromotionData, setPawnPromotionData] = useState<any>(null);
   const [playerBoardSide, setPlayerBoardSide] = useState<string>("down");
+  const [hasSound, setHasSound] = useState<boolean>(false);
 
   // Reset the initial values when rematch is called //
   const onRematch = () => {
@@ -218,6 +223,7 @@ const GameContextProvider: React.FC = ({ children }) => {
         flip,
         isGameOver,
         pawnPromotionData,
+        hasSound,
         handleGameInfo,
         setIsGameStarted,
         setIsGameOver,
@@ -226,6 +232,7 @@ const GameContextProvider: React.FC = ({ children }) => {
         changeTableSides,
         setPlayerBoardSide,
         setPawnPromotionData,
+        setHasSound,
       }}
     >
       {children}

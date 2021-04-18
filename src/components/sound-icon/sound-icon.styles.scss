@@ -1,0 +1,60 @@
+@import "../../styles/settings.styles.scss";
+
+.sound-container {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
+
+.sound {
+  width: 30px;
+  height: 30px;
+  position: relative;
+  cursor: pointer;
+  color: $off-white;
+  display: inline-block;
+}
+.sound--icon {
+  color: $off-white;
+  width: 75%;
+  height: 100%;
+  line-height: 100%;
+  font-size: 30px;
+  display: block;
+  margin: auto;
+}
+.sound--wave {
+  position: absolute;
+  border: 2px solid transparent;
+  border-right: 2px solid $off-white;
+  border-radius: 50%;
+  -webkit-transition: all 200ms;
+  transition: all 200ms;
+  margin: auto;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+.sound--wave_one {
+  width: 50%;
+  height: 50%;
+}
+.sound--wave_two {
+  width: 75%;
+  height: 75%;
+}
+.sound-mute .sound--wave {
+  border-radius: 0;
+  width: 50%;
+  height: 50%;
+  border-width: 0 2px 0 0;
+}
+.sound-mute .sound--wave_one {
+  -webkit-transform: rotate(45deg) translate3d(0, -50%, 0);
+  transform: rotate(45deg) translate3d(0, -50%, 0);
+}
+.sound-mute .sound--wave_two {
+  -webkit-transform: rotate(-45deg) translate3d(0, 50%, 0);
+  transform: rotate(-45deg) translate3d(0, 50%, 0);
+}

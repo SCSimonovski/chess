@@ -80,3 +80,12 @@ export type Time = {
   minutes: any;
   seconds: any;
 };
+
+export type PlayedMove = {
+  from: string;
+  to: string;
+  figureTitle: string;
+  takenFigure: string;
+  isCheck: boolean;
+  isCastling: boolean;
+};
