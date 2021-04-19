@@ -10,7 +10,7 @@ import ChessRoom from "./screens/chess-room/chess-room.component";
 import "./app.styles.scss";
 import { theme } from "./styles/theme.styles";
 
-export const socket = io("http://localhost:5000");
+export const socket = io(process.env.REACT_APP_SERVER_URL!);
 
 export default function App() {
   return (

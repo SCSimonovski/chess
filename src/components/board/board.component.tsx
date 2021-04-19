@@ -83,7 +83,14 @@ const Board = () => {
         handlePlayedMoves(opponentsMove);
         setEnPassantPosition(enPassantPos);
         setBoard(updatedBoard);
-        // audio.play();
+
+        if (hasSound) {
+          if (!!opponentsMove.takenFigure) {
+            TFSound.play();
+          } else {
+            MFSound.play();
+          }
+        }
       });
     }
   }, [
@@ -107,6 +114,14 @@ const Board = () => {
 
           setEnPassantPosition(enPassantPos);
           setBoard(updatedBoard);
+
+          if (hasSound) {
+            if (!!opponentsMove.takenFigure) {
+              TFSound.play();
+            } else {
+              MFSound.play();
+            }
+          }
 
           if (flip) flipBoard();
         }
