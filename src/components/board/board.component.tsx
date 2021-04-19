@@ -73,9 +73,9 @@ const Board = () => {
 
   const handleOpponentsMove = useCallback(() => {
     if (!gameInfo.isSpectator) {
-      socket.on("move", (data) => {
+      socket.removeAllListeners("move");
+      socket.on("move", (data: any) => {
         let { updatedBoard, enPassantPos, playedMove: opponentsMove } = data;
-
         setPlayedMove((playedMove: any) => {
           removeHighlightedMove(playedMove);
           return opponentsMove;
@@ -83,7 +83,7 @@ const Board = () => {
         handlePlayedMoves(opponentsMove);
         setEnPassantPosition(enPassantPos);
         setBoard(updatedBoard);
-
+        console.log("has sound is", hasSound);
         if (hasSound) {
           if (!!opponentsMove.takenFigure) {
             TFSound.play();
@@ -99,13 +99,15 @@ const Board = () => {
     setBoard,
     setPlayedMove,
     gameInfo.isSpectator,
+    hasSound,
   ]);
 
   const handleMoveForSpectators = useCallback(() => {
     if (gameInfo.isSpectator) {
+      socket.removeAllListeners("moveForSpectators");
       socket.on(
         "moveForSpectators",
-        ({ updatedBoard, enPassantPos, playedMove: opponentsMove }) => {
+        ({ updatedBoard, enPassantPos, playedMove: opponentsMove }: any) => {
           setPlayedMove((playedMove: any) => {
             removeHighlightedMove(playedMove);
             return opponentsMove;
@@ -134,6 +136,7 @@ const Board = () => {
     setPlayedMove,
     handlePlayedMoves,
     gameInfo.isSpectator,
+    hasSound,
   ]);
 
   const sendPlayedMove = useCallback(
@@ -210,7 +213,7 @@ const Board = () => {
     }
 
     handleOpponentsMove();
-  }, []);
+  }, [handleOpponentsMove]);
 
   useEffect(() => {
     sessionStorage.setItem("playedMove", JSON.stringify(playedMove));

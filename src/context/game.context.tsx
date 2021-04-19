@@ -65,6 +65,9 @@ const GameContextProvider: React.FC = ({ children }) => {
   const [playerBoardSide, setPlayerBoardSide] = useState<string>("down");
   const [hasSound, setHasSound] = useState<boolean>(false);
 
+  const startGameSound = new Audio("./sound-effects/modal.mp3");
+  const newGameSound = new Audio("./sound-effects/newGame.mp3");
+
   // Reset the initial values when rematch is called //
   const onRematch = () => {
     sessionStorage.removeItem("boardData");
@@ -159,11 +162,11 @@ const GameContextProvider: React.FC = ({ children }) => {
       setIsGameStarted(true);
     });
 
-    socket.on("gameOver", (message) => {
+    socket.on("gameOver", (message: any) => {
       setIsGameOver(message);
     });
 
-    socket.on("joinOpponent", (data) => {
+    socket.on("joinOpponent", (data: any) => {
       setGameInfo((info) => ({
         ...info,
         ...data,
@@ -174,7 +177,7 @@ const GameContextProvider: React.FC = ({ children }) => {
       onRematch();
     });
 
-    socket.on("setTime", (time) => {
+    socket.on("setTime", (time: any) => {
       setSideOnMove((side) => (side === "white" ? "black" : "white"));
       setTime(time);
     });
@@ -207,6 +210,16 @@ const GameContextProvider: React.FC = ({ children }) => {
       })
     );
   }, [gameInfo, sideOnMove, isGameStarted, playedMoves, playerBoardSide, flip]);
+
+  useEffect(() => {
+    if (hasSound) {
+      if (isGameStarted) {
+        startGameSound.play();
+      } else {
+        newGameSound.play();
+      }
+    }
+  }, [isGameStarted]);
 
   ////////////////////////////////////////////////////////
 

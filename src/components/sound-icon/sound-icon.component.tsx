@@ -1,8 +1,5 @@
 import { useContext } from "react";
-
 import { GameContext } from "../../context/game.context";
-
-import VolumeMuteIcon from "@material-ui/icons/VolumeMute";
 
 import "./sound-icon.styles.scss";
 

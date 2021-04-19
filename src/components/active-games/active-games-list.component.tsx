@@ -51,14 +51,14 @@ const ActiveGamesList = () => {
       setActiveGames(activeGames.concat(ACTIVE_GAMES));
     });
 
-    socket.on("createdGame", (game) => {
+    socket.on("createdGame", (game: any) => {
       setActiveGames((games) => {
         games.unshift(game);
         return [...games];
       });
     });
 
-    socket.on("gameIsStarting", ({ room }) => {
+    socket.on("gameIsStarting", ({ room }: any) => {
       setActiveGames((games) =>
         games.map((game) =>
           game.room === room ? { ...game, isPlaying: true } : { ...game }
@@ -66,7 +66,7 @@ const ActiveGamesList = () => {
       );
     });
 
-    socket.on("roomIsFull", ({ room, isFull }) => {
+    socket.on("roomIsFull", ({ room, isFull }: any) => {
       setActiveGames((games) =>
         games.map((game) =>
           game.room === room ? { ...game, isFull } : { ...game }

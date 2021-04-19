@@ -50,7 +50,7 @@ export default function Modal() {
   }, [isGameOver]);
 
   useEffect(() => {
-    if (hasSound) {
+    if (hasSound && open) {
       modalSound.play();
     }
   }, [open]);
