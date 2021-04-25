@@ -24,6 +24,16 @@ export const useStyles = makeStyles((theme) => ({
     width: "100%",
   },
 
+  selectTimeGrid: {
+    flexGrow: 1,
+    marginRight: theme.spacing(1),
+  },
+
+  checkbox: {
+    display: "flex",
+    alignContent: "center",
+  },
+
   button: {
     margin: theme.spacing(3, 0, 2),
   },

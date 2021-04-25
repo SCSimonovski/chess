@@ -130,8 +130,8 @@ const CreateGame = () => {
           />
 
           <Box mt={2}>
-            <Grid container>
-              <Grid item xs={6}>
+            <Grid container alignContent="center">
+              <Grid item className={classes.selectTimeGrid}>
                 <FormControl variant="outlined" className={classes.formControl}>
                   <InputLabel htmlFor="outlined-time-native-simple">
                     Time
@@ -155,7 +155,7 @@ const CreateGame = () => {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={6} container justify="center">
+              <Grid item className={classes.checkbox}>
                 <FormControlLabel
                   control={
                     <Checkbox
