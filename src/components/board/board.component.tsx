@@ -62,8 +62,10 @@ const Board = () => {
   ///////////////////////////////////////////////////////////////////////////////
   // FUNCTIONS /////////////////////////////////////////////////////////////////
 
-  const flipBoard = () => {
+  const flipBoard = (boardToFlip: any) => {
     setBoard((board) => {
+      if (boardToFlip) board = boardToFlip;
+
       let boardCopy = board.map((row: any) =>
         row.map((column: any) => ({ ...column }))
       );
@@ -115,7 +117,11 @@ const Board = () => {
           handlePlayedMoves(opponentsMove);
 
           setEnPassantPosition(enPassantPos);
-          setBoard(updatedBoard);
+          if (flip) {
+            flipBoard(updatedBoard);
+          } else {
+            setBoard(updatedBoard);
+          }
 
           if (hasSound) {
             if (!!opponentsMove.takenFigure) {
@@ -124,8 +130,6 @@ const Board = () => {
               MFSound.play();
             }
           }
-
-          if (flip) flipBoard();
         }
       );
     }
@@ -240,7 +244,7 @@ const Board = () => {
 
   useEffect(() => {
     if (typeof flip === "boolean") {
-      flipBoard();
+      flipBoard(null);
       setNumbers((numbers) => [...numbers].reverse());
       setLetters((letters) => [...letters].reverse());
       removeHighlightedMove(playedMove);
