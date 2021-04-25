@@ -203,7 +203,7 @@ const Player: React.FC<{
                     <Box mr={1}>{takenFigures.bishop}</Box>
                   )}
                   {takenFigures.rook.length !== 0 && (
-                    <Box mr={1}>{takenFigures.rooks}</Box>
+                    <Box mr={1}>{takenFigures.rook}</Box>
                   )}
                   {takenFigures.queen.length !== 0 && (
                     <Box mr={1}>{takenFigures.queen}</Box>
