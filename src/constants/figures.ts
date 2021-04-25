@@ -1,40 +1,40 @@
-import pawnwhite from "../figures/pawn-white.svg";
-import pawnblack from "../figures/pawn-black.svg";
-import rookwhite from "../figures/rook-white.svg";
-import rookblack from "../figures/rook-black.svg";
-import knightwhite from "../figures/knight-white.svg";
-import knightblack from "../figures/knight-black.svg";
-import bishopwhite from "../figures/bishop-white.svg";
-import bishopblack from "../figures/bishop-black.svg";
-import kingwhite from "../figures/king-white.svg";
-import kingblack from "../figures/king-black.svg";
-import queenwhite from "../figures/queen-white.svg";
-import queenblack from "../figures/queen-black.svg";
+import pawnWhite from "../figures/pawn-white.svg";
+import pawnBlack from "../figures/pawn-black.svg";
+import rookWhite from "../figures/rook-white.svg";
+import rookBlack from "../figures/rook-black.svg";
+import knightWhite from "../figures/knight-white.svg";
+import knightBlack from "../figures/knight-black.svg";
+import bishopWhite from "../figures/bishop-white.svg";
+import bishopBlack from "../figures/bishop-black.svg";
+import kingWhite from "../figures/king-white.svg";
+import kingBlack from "../figures/king-black.svg";
+import queenWhite from "../figures/queen-white.svg";
+import queenBlack from "../figures/queen-black.svg";
 
 export const FIGURES_SVG = {
   pawn: {
-    white: pawnwhite,
-    black: pawnblack,
+    white: pawnWhite,
+    black: pawnBlack,
   },
   rook: {
-    white: rookwhite,
-    black: rookblack,
+    white: rookWhite,
+    black: rookBlack,
   },
   knight: {
-    white: knightwhite,
-    black: knightblack,
+    white: knightWhite,
+    black: knightBlack,
   },
   bishop: {
-    white: bishopwhite,
-    black: bishopblack,
+    white: bishopWhite,
+    black: bishopBlack,
   },
   king: {
-    white: kingwhite,
-    black: kingblack,
+    white: kingWhite,
+    black: kingBlack,
   },
   queen: {
-    white: queenwhite,
-    black: queenblack,
+    white: queenWhite,
+    black: queenBlack,
   },
 };
 
