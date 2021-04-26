@@ -95,9 +95,10 @@ const ActiveGamesList = () => {
           return;
         }
 
-        const { isPlaying, ...gameInfo } = response;
+        const { isPlaying, sideOnMove, ...gameInfo } = response;
 
         context.setIsGameStarted(isPlaying);
+        context.setSideOnMove(sideOnMove);
         context.handleTime(gameInfo.time);
         context.handleGameInfo({
           ...gameInfo,

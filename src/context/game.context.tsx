@@ -25,6 +25,7 @@ export type GameContextType = {
   setPawnPromotionData: (data: any) => void;
   hasSound: boolean;
   setHasSound: (sound: any) => void;
+  setSideOnMove: (side: any) => void;
 };
 
 const context: GameContextType = {
@@ -48,6 +49,7 @@ const context: GameContextType = {
   setPawnPromotionData: () => {},
   hasSound: false,
   setHasSound: (sound: any) => {},
+  setSideOnMove: (side: any) => {},
 };
 
 export const GameContext = React.createContext<GameContextType>(context);
@@ -246,6 +248,7 @@ const GameContextProvider: React.FC = ({ children }) => {
         setPlayerBoardSide,
         setPawnPromotionData,
         setHasSound,
+        setSideOnMove,
       }}
     >
       {children}
