@@ -57,7 +57,7 @@ export const GameContext = React.createContext<GameContextType>(context);
 const GameContextProvider: React.FC = ({ children }) => {
   const [gameInfo, setGameInfo] = useState(GAME_INFO);
   const [isGameStarted, setIsGameStarted] = useState(false);
-  const [sideOnMove, setSideOnMove] = useState("black");
+  const [sideOnMove, setSideOnMove] = useState("");
   const [isGameOver, setIsGameOver] = useState("");
   const [time, setTime] = useState({ white: 0, black: 0, incrementor: 0 });
   const [playedMoves, setPlayedMoves] = useState<any>([]);
@@ -76,7 +76,7 @@ const GameContextProvider: React.FC = ({ children }) => {
     setFlip((flip) => !flip);
     setIsGameStarted(false);
     setIsGameOver("");
-    setSideOnMove("black");
+    setSideOnMove("");
     setPlayedMoves((moves: any) => {
       removeHighlightedMove(moves.pop());
       return [];
@@ -176,11 +176,16 @@ const GameContextProvider: React.FC = ({ children }) => {
     });
 
     socket.on("playRematch", () => {
+      console.log("play rematch is called");
       onRematch();
     });
 
     socket.on("setTime", (time: any) => {
-      setSideOnMove((side) => (side === "white" ? "black" : "white"));
+      setSideOnMove((side) => {
+        if (!side) return "white";
+
+        return side === "white" ? "black" : "white";
+      });
       setTime(time);
     });
 
