@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useEffect, useContext } from "react";
 
 import { GameContext } from "../../context/game.context";
 
@@ -19,6 +19,7 @@ import { GiChessKing } from "react-icons/gi";
 import { useStyles } from "./chess-room.styles.js";
 import Player from "../../components/player/player.component";
 import SoundIcon from "../../components/sound-icon/sound-icon.component";
+import { socket } from "../../App";
 
 const ChessRoom = () => {
   const { gameInfo, playerBoardSide } = useContext(GameContext);

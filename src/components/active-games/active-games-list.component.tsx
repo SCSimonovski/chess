@@ -51,6 +51,10 @@ const ActiveGamesList = () => {
       setActiveGames(activeGames.concat(ACTIVE_GAMES));
     });
 
+    socket.on("activeGames", (activeGames: any) => {
+      setActiveGames(activeGames.concat(ACTIVE_GAMES));
+    });
+
     socket.on("createdGame", (game: any) => {
       setActiveGames((games) => {
         games.unshift(game);
