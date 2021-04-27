@@ -27,7 +27,6 @@ const ChessRoom = () => {
 
   useEffect(() => {
     window.onpopstate = (e: any) => {
-      //your code...
       socket.emit("leaveRoom");
       sessionStorage.clear();
     };
