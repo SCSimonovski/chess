@@ -4,7 +4,8 @@ import { positionToIndices } from "../board/position-to-indices";
 export const protectKing = (
   board: Array<Array<ChessField>>,
   enemySide: string,
-  position: string
+  position: string,
+  pawnsDirection: number
 ): boolean => {
   let [row, column] = positionToIndices(position);
 
@@ -209,7 +210,7 @@ export const protectKing = (
 
   ////////////////////////////////////////////////////////
   // BLOCK WITH PAWN ////////////////////////////////////
-  const n = enemySide === "white" ? -1 : 1;
+  const n = pawnsDirection;
 
   if (row < 6 && row > 1) {
     if (board[row + n][column].figure?.title === "pawn") return true;

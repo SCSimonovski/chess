@@ -73,7 +73,6 @@ const GameContextProvider: React.FC = ({ children }) => {
   // Reset the initial values when rematch is called //
   const onRematch = () => {
     sessionStorage.removeItem("boardData");
-    setFlip((flip) => !flip);
     setIsGameStarted(false);
     setIsGameOver("");
     setSideOnMove("");

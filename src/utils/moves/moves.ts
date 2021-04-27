@@ -72,7 +72,7 @@ export const availableMoves = (
       break;
 
     case "king":
-      moves = kingMoves(board, row, column, enemySide);
+      moves = kingMoves(board, row, column, enemySide, pawnsDirection);
   }
 
   let newBoard: ChessBoard;

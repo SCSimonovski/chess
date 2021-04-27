@@ -251,6 +251,15 @@ const Board = () => {
     }
   }, [flip, setNumbers, setLetters]);
 
+  useEffect(() => {
+    socket.on("playRematch", () => {
+      flipBoard(null);
+      setNumbers((numbers) => [...numbers].reverse());
+      setLetters((letters) => [...letters].reverse());
+      removeHighlightedMove(playedMove);
+    });
+  }, []);
+
   /////////////////////////////////////////////////////////////////////////
 
   return size ? (

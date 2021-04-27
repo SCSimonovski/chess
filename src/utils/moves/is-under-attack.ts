@@ -4,7 +4,8 @@ import { positionToIndices } from "../board/position-to-indices";
 export const isUnderAttack = (
   board: Array<Array<ChessField>>,
   enemySide: string,
-  position: string
+  position: string,
+  pawnsDirection: number
 ): boolean => {
   let [row, column] = positionToIndices(position);
 
@@ -210,7 +211,7 @@ export const isUnderAttack = (
   /////////////////////////////////////////////////////////////////////
   // ATTACK FROM PAWN /////////////////////////////////////////////////
 
-  const checkFromPawn = (r: number, c: number, side: "white" | "black") => {
+  const checkFromPawn = (r: number, c: number, side: string) => {
     if (
       r >= 0 &&
       r <= 7 &&
@@ -225,23 +226,13 @@ export const isUnderAttack = (
 
   /////////////////////////////////////////////////////////////////
 
-  if (enemySide === "white") {
-    r = row + 1;
-    c = column + 1;
+  r = row + pawnsDirection;
+  c = column + 1;
 
-    if (checkFromPawn(r, c, "white")) return true;
+  if (checkFromPawn(r, c, enemySide)) return true;
 
-    c = column - 1;
-    if (checkFromPawn(r, c, "white")) return true;
-  } else {
-    r = row - 1;
-    c = column - 1;
-
-    if (checkFromPawn(r, c, "black")) return true;
-
-    c = column + 1;
-    if (checkFromPawn(r, c, "black")) return true;
-  }
+  c = column - 1;
+  if (checkFromPawn(r, c, enemySide)) return true;
 
   ///////////////////////////////////////////////////////////////////
 

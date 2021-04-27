@@ -7,7 +7,8 @@ export const kingMoves = (
   board: Array<Array<ChessField>>,
   row: number,
   column: number,
-  enemySide: string
+  enemySide: string,
+  pawnsDirection: number
 ): AvailableMoves => {
   const arr: string[] = [];
 
@@ -84,7 +85,14 @@ export const kingMoves = (
       !board[row][column + 2 * n].figure &&
       !board[row][column + 3 * n].figure
     ) {
-      if (!isUnderAttack(board, enemySide, `${row}${column + 1 * n}`)) {
+      if (
+        !isUnderAttack(
+          board,
+          enemySide,
+          `${row}${column + 1 * n}`,
+          pawnsDirection
+        )
+      ) {
         arr.push(`${row}${column + 2 * n}`);
         castling = {
           position: `${row}${column + 2 * n}`,
@@ -101,7 +109,14 @@ export const kingMoves = (
       !board[row][column - 1 * n].figure &&
       !board[row][column - 2 * n].figure
     ) {
-      if (!isUnderAttack(board, enemySide, `${row}${column - 1 * n}`)) {
+      if (
+        !isUnderAttack(
+          board,
+          enemySide,
+          `${row}${column - 1 * n}`,
+          pawnsDirection
+        )
+      ) {
         arr.push(`${row}${column - 2 * n}`);
         castling = {
           position: `${row}${column - 2 * n}`,

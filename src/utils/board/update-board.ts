@@ -100,11 +100,11 @@ export const boardFinalVersion = (
   }
 
   // Checking for checkmate ////////////////////////////
-  const pawnsDirection = playerBoardSide === "down" ? 1 : -1;
+  const pawnsDirection = playerBoardSide === "up" ? 1 : -1;
   let checkArr = isCheck(newBoard, playerSide, pawnsDirection);
   let checkmate = false;
   if (checkArr.length !== 0) {
-    checkmate = isCheckmate(newBoard, playerSide, checkArr);
+    checkmate = isCheckmate(newBoard, playerSide, checkArr, pawnsDirection);
   }
   //////////////////////////////////////////////////////
 
@@ -122,7 +122,8 @@ export const updateBoardOnPawnPromotion = (
   board: ChessBoard,
   fieldPos: string,
   title: FigureTitle,
-  playerSide: string
+  playerSide: string,
+  playerBoardSide: string
 ) => {
   const newBoard = board.map((row, i) => {
     return row.map((column, j) => {
@@ -137,7 +138,8 @@ export const updateBoardOnPawnPromotion = (
   let checkArr = isCheck(newBoard, playerSide);
   let checkmate = false;
   if (checkArr.length !== 0) {
-    checkmate = isCheckmate(newBoard, playerSide, checkArr);
+    const pawnsDirection = playerBoardSide === "up" ? 1 : -1;
+    checkmate = isCheckmate(newBoard, playerSide, checkArr, pawnsDirection);
   }
   //////////////////////////////////////////////////////
 

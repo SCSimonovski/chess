@@ -21,9 +21,12 @@ import { Divider } from "@material-ui/core";
 import { updateBoardOnPawnPromotion } from "../../utils/board/update-board";
 
 export default function Modal({ sendPlayedMove }) {
-  const { pawnPromotionData, setIsGameOver, gameInfo } = useContext(
-    GameContext
-  );
+  const {
+    pawnPromotionData,
+    setIsGameOver,
+    gameInfo,
+    playerBoardSide,
+  } = useContext(GameContext);
   const classes = useStyles({ position: pawnPromotionData });
 
   const [open, setOpen] = useState(false);
@@ -35,7 +38,8 @@ export default function Modal({ sendPlayedMove }) {
       pawnPromotionData.board,
       pawnPromotionData.fieldPos,
       title,
-      gameInfo.player.side
+      gameInfo.player.side,
+      playerBoardSide
     );
 
     if (isCheckmate) setIsGameOver(`${gameInfo.player.side} Won by checkmate`);
