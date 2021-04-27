@@ -226,7 +226,7 @@ export const isUnderAttack = (
 
   /////////////////////////////////////////////////////////////////
 
-  r = row + pawnsDirection;
+  r = row - pawnsDirection;
   c = column + 1;
 
   if (checkFromPawn(r, c, enemySide)) return true;
