@@ -29,8 +29,6 @@ export const isCheckmate = (
   }
 
   if (isUnderAttack(board, alliesSide, checkArr[0], pawnsDirection * -1)) {
-    console.log("here's the mistake that I'm looking for");
-
     return false;
   }
 
@@ -41,8 +39,6 @@ export const isCheckmate = (
   if (!isCheckmate) {
     return false;
   }
-
-  console.log("this should not be displayed");
 
   ////////////////////////////////////////////////////////////////////////
   // CHECK FROM QUEEN OR BISHOP //////////////////////////////////////////
