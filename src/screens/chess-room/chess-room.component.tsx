@@ -25,6 +25,14 @@ const ChessRoom = () => {
   const { gameInfo, playerBoardSide } = useContext(GameContext);
   const classes = useStyles({ size: window.innerHeight, playerBoardSide });
 
+  useEffect(() => {
+    window.onpopstate = (e: any) => {
+      //your code...
+      socket.emit("leaveRoom");
+      sessionStorage.clear();
+    };
+  }, []);
+
   return (
     <>
       <Grid id="chess-room" className={classes.root} container justify="center">

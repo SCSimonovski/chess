@@ -57,8 +57,7 @@ const ActiveGamesList = () => {
 
     socket.on("createdGame", (game: any) => {
       setActiveGames((games) => {
-        games.unshift(game);
-        return [...games];
+        return [game, ...games];
       });
     });
 
