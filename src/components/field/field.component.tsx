@@ -20,7 +20,6 @@ import {
   markAvailableMoves,
   removeMarkedMoves,
 } from "../../utils/board/highlight-moves";
-import { detectMob } from "../../utils/detect-mobile-browser";
 
 let moves: AvailableMoves = {
   arr: [],
@@ -48,8 +47,6 @@ let fieldsToMark: {
 let prevClickedFieldEl: any;
 
 let playedMove: PlayedMove | null = null;
-
-const isMobile = detectMob();
 
 const Field = ({
   title,
@@ -174,24 +171,16 @@ const Field = ({
       markAvailableMoves(fieldsToMark);
       //////////////////////////////////////////////////////////////
 
-      let x, y: number;
-      if (!isMobile) {
-        x = e.pageX;
-        y = e.pageY;
-        moveFigureAt(x, y, figureEl, boardEl);
-      }
+      let x = e.pageX;
+      let y = e.pageY;
+      moveFigureAt(x, y, figureEl, boardEl);
 
       //  On Move /////////////////////////////////////////////
       let prevElemBelow = e.currentTarget;
       prevElemBelow.classList.add("field-border");
       const onMove = (e: any) => {
-        if (isMobile) {
-          x = e.touches[0].clientX;
-          y = e.touches[0].clientY - 50;
-        } else {
-          x = e.pageX;
-          y = e.pageY;
-        }
+        x = e.pageX;
+        y = e.pageY;
 
         moveFigureAt(x, y, figureEl, boardEl);
         elemBelow = document.elementFromPoint(x, y);
@@ -203,15 +192,12 @@ const Field = ({
           prevElemBelow = elemBelow;
         }
       };
-      document.addEventListener(isMobile ? "touchmove" : "mousemove", onMove);
+      document.addEventListener("mousemove", onMove);
 
       ///////////////////////////////////////////////////////////////
       // On End ////////////////////////////////////////////////
       const onEnd = () => {
-        document.removeEventListener(
-          isMobile ? "touchmove" : "mousemove",
-          onMove
-        );
+        document.removeEventListener("mousemove", onMove);
 
         figureImgEl.style.width = "90%";
         figureImgEl.style.height = "90%";
@@ -260,9 +246,9 @@ const Field = ({
         }
 
         prevElemBelow.classList.remove("field-border");
-        document.removeEventListener(isMobile ? "touchend" : "mouseup", onEnd);
+        document.removeEventListener("mouseup", onEnd);
       };
-      document.addEventListener(isMobile ? "touchend" : "mouseup", onEnd);
+      document.addEventListener("mouseup", onEnd);
     }
   };
 
@@ -273,7 +259,6 @@ const Field = ({
       id={position}
       title={title}
       onMouseDown={handleStart}
-      onTouchStart={handleStart}
       onClick={handleOnClick}
       draggable="false"
     >
