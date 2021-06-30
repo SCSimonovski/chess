@@ -20,7 +20,7 @@ export const theme = createMuiTheme({
 
   icons: {
     listItemIcon: 26,
-    mobileIcon: 24,
+    mobileIcon: 28,
     modalIcon: 34,
     logoIcon: 76,
   },

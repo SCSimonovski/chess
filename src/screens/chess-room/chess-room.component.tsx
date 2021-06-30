@@ -35,15 +35,22 @@ const ChessRoom = () => {
   return (
     <>
       <Grid id="chess-room" className={classes.root} container justify="center">
-        <Hidden smUp>
-          <AppBar position="fixed" color="secondary">
-            <SoundIcon />
+        <Hidden mdUp>
+          <AppBar
+            position="static"
+            color="secondary"
+            style={{ flexDirection: "row" }}
+          >
             <Grid
               container
               justify="center"
               alignItems="center"
               className={classes.appBarLogoGrid}
             >
+              <Grid item className={classes.soundIconContainer}>
+                <SoundIcon />
+              </Grid>
+
               <Grid item>
                 <Avatar className={classes.logoIcon}>
                   <GiChessKing />
@@ -52,7 +59,7 @@ const ChessRoom = () => {
               <Grid item>
                 <Typography
                   component="h3"
-                  variant="h6"
+                  variant="h5"
                   className={classes.logoTitle}
                 >
                   Chess Master
@@ -61,6 +68,7 @@ const ChessRoom = () => {
             </Grid>
           </AppBar>
         </Hidden>
+
         <Hidden mdDown>
           <Grid item xs={3} className={classes.leftGrid}>
             <LeftSidebar />
@@ -79,7 +87,7 @@ const ChessRoom = () => {
           </div>
         </Grid>
 
-        <Hidden smUp>
+        <Hidden mdUp>
           <Grid container className={classes.buttonsGrid}>
             <Buttons />
           </Grid>

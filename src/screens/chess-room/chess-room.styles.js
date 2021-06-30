@@ -2,13 +2,11 @@ import { makeStyles } from "@material-ui/core/styles";
 
 export const useStyles = makeStyles((theme) => ({
   root: {
-    height: (props) => props.size,
+    minHeight: (props) => props.size,
     padding: theme.spacing(2),
-    overflow: "hidden",
-    position: "relative",
 
-    [theme.breakpoints.down(650)]: {
-      alignContent: "center",
+    [theme.breakpoints.down(960)]: {
+      padding: theme.spacing(0),
     },
   },
 
@@ -26,6 +24,10 @@ export const useStyles = makeStyles((theme) => ({
     flexDirection: (props) =>
       props.playerBoardSide === "down" ? "column" : "column-reverse",
     justifyContent: "center",
+
+    [theme.breakpoints.down(960)]: {
+      padding: theme.spacing(2, 0),
+    },
   },
 
   boardGrid: {
@@ -35,12 +37,22 @@ export const useStyles = makeStyles((theme) => ({
 
   appBarLogoGrid: {
     padding: theme.spacing(1),
+    position: "relative",
+  },
+
+  soundIconContainer: {
+    position: "absolute",
+    top: 0,
+    left: 5,
+    height: "100%",
+    display: "flex",
+    alignItems: "center",
   },
 
   logoIcon: {
     backgroundColor: theme.palette.primary.main,
-    width: theme.spacing(4),
-    height: theme.spacing(4),
+    width: theme.spacing(5),
+    height: theme.spacing(5),
     fontSize: theme.icons.mobileIcon,
     marginRight: theme.spacing(0.5),
   },
@@ -50,8 +62,10 @@ export const useStyles = makeStyles((theme) => ({
   },
 
   buttonsGrid: {
-    position: "absolute",
-    bottom: theme.spacing(1),
     padding: theme.spacing(0, 1),
+
+    [theme.breakpoints.down(960)]: {
+      paddingBottom: theme.spacing(1),
+    },
   },
 }));
